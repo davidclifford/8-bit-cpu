@@ -183,6 +183,7 @@ void setup() {
     }
   }
   Serial.println();
+  
   // Read and print out the contents of the EERPROM
   Serial.println("Reading EEPROM");
   printContents();
