@@ -149,12 +149,12 @@ void setup() {
   }
   Serial.println();
 
-  byte digits[] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70}; // 0-7
+  //byte digits[] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70}; // 0-7
   Serial.println("Programming octal numbers");
   for (int value = 0; value <= 255; value += 1) {
-    writeEEPROM((byte)value | OCTAL | D0, digits[(value%8)]);
-    writeEEPROM((byte)value | OCTAL | D1, digits[((value/8)%8)]);
-    writeEEPROM((byte)value | OCTAL | D2, digits[((value/64)%8)]);
+    writeEEPROM((byte)value | OCTAL | D0, hex[(value%8)]);
+    writeEEPROM((byte)value | OCTAL | D1, hex[((value/8)%8)]);
+    writeEEPROM((byte)value | OCTAL | D2, hex[((value/64)%8)]);
     writeEEPROM((byte)value | OCTAL | D3, LTR_O);
     if(value%16==0) Serial.print(".");
   }
@@ -162,19 +162,19 @@ void setup() {
 
   byte letters[] = { BLANK, 0x7d, 0x1f, 0x0d, 0x3d, 0x6f, 0x47, 0x7b, //space, a-g
                       0x17, 0x50, 0x58, 0x37, 0x0e, 0x4f, 0x15, 0x1d, // h-o
-                      0x67, 0x73, 0x05, 0x19, 0x0f, 0x1c, 0x0c, 0x79, // p-w
-                      0x37, 0x3b, 0x25, 0x80, 0xb0, 0xe5, 0x08, 0x01}; //x-z, . ! ? _ - 
+                      0x67, 0x73, 0x05, 0x5b, 0x0f, 0x1c, 0x0c, 0x79, // p-w
+                      0xB7, 0x3b, 0x6d, 0x80, 0xb0, 0xe5, 0x08, 0x01}; //x-z, . ! ? _ - 
   Serial.println("Programming alpha");
-  for (int disp = 0; disp<4; disp++) {
+  for (int disp = 0; disp<8; disp++) {
     for (int value = 0; value <= 32; value += 1) {
       int let1 = BLANK;
       int let2 = BLANK;
       int let3 = BLANK;
       int let4 = BLANK;
-      if (disp==0) let1 = letters[value];
-      if (disp==1) let2 = letters[value];
-      if (disp==2) let3 = letters[value];
-      if (disp==3) let4 = letters[value];
+      if ((disp%4)==0) let1 = letters[value];
+      if ((disp%4)==1) let2 = letters[value];
+      if ((disp%4)==2) let3 = letters[value];
+      if ((disp%4)==3) let4 = letters[value];
       writeEEPROM((byte)value+disp*32 | ALPHA | D3, let1); 
       writeEEPROM((byte)value+disp*32 | ALPHA | D2, let2); 
       writeEEPROM((byte)value+disp*32 | ALPHA | D1, let3); 

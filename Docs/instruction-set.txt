@@ -1,0 +1,160 @@
+Instructions
+
+4x REGISTERS A,B,C,D 
+no SP or DP
+
+NOP
+HLT
+(2)
+
+MOV a,#
+MOV b,#
+MOV c,#
+MOV d,#
+MOV a,b
+MOV a,c
+MOV a,d
+MOV b,a
+MOV b,c
+MOV b,d
+MOV c,a
+MOV c,b
+MOV c,d
+MOV d,a
+MOV d,b
+MOV d,c
+(16)
+
+LDA (#)
+LDB (#)
+LDC (#)
+LDD (#)
+LDA (B)
+LDA (C)
+LDA (D)
+LDB (B)
+LDB (C)
+LDB (D)
+LDC (B)
+LDC (C)
+LDC (D)
+LDD (A)
+LDD (B)
+LDD (C)
+(16)
+
+STA (#)
+STB (#)
+STC (#)
+STD (#)
+STA (B)
+STA (C)
+STA (D)
+STB (B)
+STB (C)
+STB (D)
+STC (B)
+STC (C)
+STC (D)
+STD (A)
+STD (B)
+STD (C)
+(16)
+
+ADD A,#
+ADD A,B
+ADD A,C
+ADD A,D
+
+ADC A,#
+ADC A,B
+ADC A,C
+ADC A,D
+
+SUB A,#
+SUB A,B
+SUB A,C
+SUB A,D
+
+SBB A,#
+SBB A,B
+SBB A,C
+SBB A,D
+(16)
+
+CMP A,#
+CMP A,B
+CMP A,C
+CMP A,D
+
+AND A,#
+AND A,B
+AND A,C
+AND A,D
+
+OR  A,#
+OR  A,B
+OR  A,C
+OR  A,D
+
+XOR A,#
+XOR A,B
+XOR A,C
+XOR A,D
+(16)
+
+LSL A
+LSL B
+LSL C
+LSL D
+
+LSR A
+LSR B
+LSR C
+LSR D
+
+ASR A
+ASR B
+ASR C
+ASR D
+
+RLC A
+RLC B
+RLC C
+RLC D
+(16)
+
+NOT A
+NOT B
+NOT C
+NOT D
+
+INC A
+INC B
+INC C
+INC D
+
+DEC A
+DEC B
+DEC C
+DEC D
+(8)
+
+OUT A
+OUT B
+OUT C
+OUT D
+(4)
+
+JMP #
+JPZ #
+JPC #
+JPV #
+JPN #
+
+JMP (A)
+JMP (B)
+JMP (C)
+JMP (D)
+(9)
+
