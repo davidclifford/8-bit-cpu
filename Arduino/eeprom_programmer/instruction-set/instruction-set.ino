@@ -18,8 +18,54 @@
 #define PC ((uint32_t)1<<6)
 #define PO ((uint32_t)1<<7)
 
+#define AI ((uint32_t)1<<8)
+#define AO ((uint32_t)1<<9)
+#define BI ((uint32_t)1<<10)
+#define BO ((uint32_t)1<<11)
+#define RI ((uint32_t)1<<12)
+#define Y0 ((uint32_t)1<<13)
+#define CY ((uint32_t)1<<14)
+#define JP ((uint32_t)1<<15)
+
+/*
+_PO	PC out			\
+ PC	Inc PC			|
+_MI	Mem address in	| - Needed for fetch/execute
+_IL 	IR load		/
+_RO	Ram out		- Get Data for instruction/data
+_XI	X in		\
+_YI	Y in		| - Arithmetic on 2 numbers & result
+_EO	ALU out		/
+
+_AI	Reg A in	\
+_AO	Reg A out	| - Load/store/move
+_BI	Reg B in	|   between registers
+_BO	Reg B out	|	 and memory
+_RI	Ram In		/
+ Y0	Y=0			\ - Implement Inc
+ CY	Carry in	/
+_JP	Jump (PC in)  - Unconditional jump
+		
+ S0	ALU sel \
+ S1		"	| - Select ALU function
+ S2		"	/
+ RV	Reverse bits  - for right shifting
+_FL	Flag reg load - conditional jumps
+_OI	Output in     - output to display (or UART?)
+ PR	Prog	      - Use program memory
+_TR	T-state reset - Reset T-state counter for more efficient instruction speed		
+
+_CI	Reg C in	\
+_CO	Reg C out	|
+_DI	Reg D in	| - C,D, and SP registers
+_DO	Reg D out	|
+_SI	SP in		|
+_SO	SP out		/
+_DM	Disp mode in  - Which display mode: dec/signed/octal/hex/dascii
+ HL	Halt          - Stop CPU (unneeded?)  
+*/
 uint32_t inline flip_bits(uint32_t instruction) {
-  instruction ^= (IL | RO | XI | EO | MI | PO);
+  instruction ^= (IL|RO|XI|EO|MI|PO|AI|AO|BI|BO|RI|JP);
   return instruction;
 }
 
@@ -101,14 +147,14 @@ void setup() {
   Serial.begin(57600);
 
   Serial.println("Clearing EEPROM");
-  for (int addr = 0; addr < 8196; addr += 1) {
+  for (int addr = 0; addr < 8192; addr += 1) {
     writeEEPROM(addr ,flip_bits(0));
     if(addr%256==0) Serial.print(".");
   }
   Serial.println();
 
   Serial.println("Fetch micro-instruction");
-  for (int addr = 0; addr < 8196; addr += 32) {
+  for (int addr = 0; addr < 8192; addr += 32) {
     writeEEPROM(addr ,flip_bits(PO|MI|IL|PC));
     if(addr%256==0) Serial.print(".");
   }
