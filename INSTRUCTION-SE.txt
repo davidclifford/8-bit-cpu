@@ -1,0 +1,255 @@
+Instructions
+
+4x REGISTERS A,B,C,D 
+SP & DP
+
+NOP 00000000
+HLT 11111111
+(2)
+
+MOV a,# 0000ssdd
+MOV b,#
+MOV c,#
+MOV d,#
+MOV a,b
+MOV a,c
+MOV a,d
+MOV b,a
+MOV b,c
+MOV b,d
+MOV c,a
+MOV c,b
+MOV c,d
+MOV d,a
+MOV d,b
+MOV d,c
+(16)
+
+LDA (#) 0001ssdd
+LDB (#)
+LDC (#)
+LDD (#)
+LDA (B)
+LDA (C)
+LDA (D)
+LDB (B)
+LDB (C)
+LDB (D)
+LDC (B)
+LDC (C)
+LDC (D)
+LDD (A)
+LDD (B)
+LDD (C)
+(16)
+
+STA (#) 0010ssdd
+STB (#)
+STC (#)
+STD (#)
+STA (B)
+STA (C)
+STA (D)
+STB (B)
+STB (C)
+STB (D)
+STC (B)
+STC (C)
+STC (D)
+STD (A)
+STD (B)
+STD (C)
+(16)
+
+ADD A,# 001100dd
+ADD A,B
+ADD A,C
+ADD A,D
+
+ADC A,# 001101dd
+ADC A,B 
+ADC A,C
+ADC A,D
+
+SUB A,# 001110dd
+SUB A,B
+SUB A,C
+SUB A,D
+
+SBB A,# 001111dd
+SBB A,B
+SBB A,C
+SBB A,D
+(16)
+
+CMP A,# 010000dd
+CMP A,B
+CMP A,C
+CMP A,D
+
+AND A,# 010001dd
+AND A,B
+AND A,C
+AND A,D
+
+OR  A,# 010010dd
+OR  A,B
+OR  A,C
+OR  A,D
+
+XOR A,# 010011dd
+XOR A,B
+XOR A,C
+XOR A,D
+(16)
+
+LSL A   010100dd
+LSL B
+LSL C
+LSL D
+
+LSR A  010101dd
+LSR B
+LSR C
+LSR D
+
+ASR A  010110dd
+ASR B
+ASR C
+ASR D
+
+RLC A  010111dd
+RLC B
+RLC C
+RLC D
+(16)
+
+NOT A 011000dd
+NOT B
+NOT C
+NOT D
+
+NEG A 011001dd
+NEG B
+NEG C
+NEG D
+
+INC A 011010dd
+INC B
+INC C
+INC D
+
+DEC A 011011dd
+DEC B
+DEC C
+DEC D
+(16)
+
+OUT A 011100dd
+OUT B
+OUT C
+OUT D
+
+IN A  011101dd
+IN B
+IN C
+IN D
+(8)
+
+JMP # 10000000
+JPZ # 10000001
+JPN # 10000010 
+JPV # 10000100
+JPC # 10000111
+
+JMP (A) 100100dd
+JMP (B) 
+JMP (C)
+JMP (D)
+(9)
+
+LSP #  10100000
+LDP #  10100001
+PUSH A 101100dd
+PUSH B
+PUSH C
+PUSH D
+
+POP A 101101dd
+POP B
+POP C
+POP D
+(10)
+
+CALL #   11000100
+CALL (A) 110000dd
+CALL (B)
+CALL (C)
+CALL (D)
+RET      11000101
+(6)
+
+=147
+
+
+ss = A B C D
+dd = A B C D
+X = ssdd
+when ss=dd then ss=# dd=dd
+
+mov 0X
+ld 1X
+st 2X
+add 3X
+adc 4X
+sub 5X
+sbb 6X
+and 7X
+or 8X
+xor 9X
+cmp AX
+
+rr = A B C D (both source and destination)
+
+not B00rr
+neg B01rr
+inc B10rr 
+dec B11rr
+
+p = port 0 or 1
+in  C0prr
+out C1prr
+
+lsl D00rr
+lsr D01rr
+asr D10rr
+rol D11rr
+
+sp=# E0000
+dp=# E0001
+call # E0010
+ret  E0011
+call X E01rr
+push X E10rr
+pop  X E11rr
+
+
+jmp # F0000 F0
+jpz # F0001 F1
+jpv # F0010 F2
+jpn # F0100 F4
+jpc # F0111 F7
+
+F3
+F5
+F6
+F8
+F9
+FA
+FB
+FC
+FD
+
+nop  FE
+hlt  FF
+
