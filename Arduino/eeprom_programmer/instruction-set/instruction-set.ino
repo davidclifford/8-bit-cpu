@@ -122,7 +122,7 @@ void writeEEPROM(int address, byte data) {
    Read the contents of the EEPROM and print them to the serial monitor.
 */
 void printContents() {
-  for (int base = 0; base < 8196; base += 16) {
+  for (int base = 0; base < 8192; base += 16) {
     byte data[16];
     for (int offset = 0; offset < 16; offset++) {
       data[offset] = readEEPROM(base + offset);
@@ -146,18 +146,39 @@ void setup() {
   pinMode(WRITE_EN, OUTPUT);
   Serial.begin(57600);
 
-  Serial.println("Clearing EEPROM");
-  for (int addr = 0; addr < 8192; addr += 1) {
-    writeEEPROM(addr ,flip_bits(0));
-    if(addr%256==0) Serial.print(".");
-  }
-  Serial.println();
+//  Serial.println("Clearing EEPROM");
+//  for (int addr = 0; addr < 8192; addr += 1) {
+//    writeEEPROM(addr ,flip_bits(0));
+//    if(addr%256==0) Serial.print(".");
+//  }
+//  Serial.println();
 
+  #define FETCH PO|MI|IL|PC
+  uint32_t inst[][8] = {
+                        {FETCH, 0, 0, 0, 0, 0, 0, 0}, // NOP 00
+                        {FETCH, PO|MI|PC, RO|MI, RO|XI, 0, 0, 0, 0}, // LDX addr 01
+                        {FETCH, PO|MI|PC, RO|XI, 0, 0, 0, 0, 0}, // LXI # 02
+                        {FETCH, PO|MI|PC, RO|MI, RO|YI, 0, 0, 0, 0}, // LDY addr 03
+                        {FETCH, PO|MI|PC, RO|YI, 0, 0, 0, 0, 0}, // LYI # 04
+                        {FETCH, EO|XI, 0, 0, 0, 0, 0, 0}, // ADD and output 05
+                      };
   Serial.println("Fetch micro-instruction");
   for (int addr = 0; addr < 8192; addr += 32) {
     writeEEPROM(addr ,flip_bits(PO|MI|IL|PC));
     if(addr%256==0) Serial.print(".");
   }
+  Serial.println();
+
+  Serial.println("Test instructions");
+  for (int ins = 0; ins < 6; ins++) {
+    for (int T = 0; T<8; T++) {
+      for (int flags = 0; flags<4; flags++) {
+        int addr = flags | T<<2 | ins<<5;
+        writeEEPROM(addr ,flip_bits(inst[ins][T]));
+      }
+    }
+    Serial.print(".");
+  } 
   Serial.println();
 
   // Read and print out the contents of the EERPROM
