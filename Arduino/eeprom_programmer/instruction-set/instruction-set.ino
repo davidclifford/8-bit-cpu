@@ -9,63 +9,44 @@
 #define EEPROM_D7 12
 #define WRITE_EN 13
 
-#define IL ((uint32_t)1<<0)
-#define RO ((uint32_t)1<<1)
-#define XI ((uint32_t)1<<2)
-#define YI ((uint32_t)1<<3)
-#define EO ((uint32_t)1<<4)
-#define MI ((uint32_t)1<<5)
-#define PC ((uint32_t)1<<6)
-#define PO ((uint32_t)1<<7)
+#define IL ((uint32_t)1<< 0) // Instruction reg load
+#define RO ((uint32_t)1<< 1) // Ram out
+#define XI ((uint32_t)1<< 2) // ALU X in
+#define YI ((uint32_t)1<< 3) // ALU Y in
+#define EO ((uint32_t)1<< 4) // ALU result out
+#define MI ((uint32_t)1<< 5) // Mem address in
+#define PC ((uint32_t)1<< 6) // Prog count increment
+#define PO ((uint32_t)1<< 7) // Prog counter out
 
-#define AI ((uint32_t)1<<8)
-#define AO ((uint32_t)1<<9)
-#define BI ((uint32_t)1<<10)
-#define BO ((uint32_t)1<<11)
-#define RI ((uint32_t)1<<12)
-#define Y0 ((uint32_t)1<<13)
-#define CY ((uint32_t)1<<14)
-#define JP ((uint32_t)1<<15)
+#define AI ((uint32_t)1<< 8) // A reg in
+#define AO ((uint32_t)1<< 9) // A reg out
+#define BI ((uint32_t)1<<10) // B reg in
+#define BO ((uint32_t)1<<11) // B reg out
+#define RI ((uint32_t)1<<12) // Ram in
+#define Y0 ((uint32_t)1<<13) // ALU Y zero
+#define CY ((uint32_t)1<<14) // ALU Carry in
+#define JP ((uint32_t)1<<15) // Jump (PC in)
 
-/*
-_PO	PC out			\
- PC	Inc PC			|
-_MI	Mem address in	| - Needed for fetch/execute
-_IL 	IR load		/
-_RO	Ram out		- Get Data for instruction/data
-_XI	X in		\
-_YI	Y in		| - Arithmetic on 2 numbers & result
-_EO	ALU out		/
+#define S0 ((uint32_t)1<<16) // ALU setting 0
+#define S1 ((uint32_t)1<<17) // ALU setting 1
+#define S2 ((uint32_t)1<<18) // ALU setting 2
+#define RV ((uint32_t)1<<19) // Reverse bits into X&Y
+#define FL ((uint32_t)1<<20) // Load flags reg from ALU
+#define OI ((uint32_t)1<<21) // Output in (display)
+#define PR ((uint32_t)1<<22) // Use PRogram memory (or ROM?)
+#define TR ((uint32_t)1<<23) // Reset T states
 
-_AI	Reg A in	\
-_AO	Reg A out	| - Load/store/move
-_BI	Reg B in	|   between registers
-_BO	Reg B out	|	 and memory
-_RI	Ram In		/
- Y0	Y=0			\ - Implement Inc
- CY	Carry in	/
-_JP	Jump (PC in)  - Unconditional jump
-		
- S0	ALU sel \
- S1		"	| - Select ALU function
- S2		"	/
- RV	Reverse bits  - for right shifting
-_FL	Flag reg load - conditional jumps
-_OI	Output in     - output to display (or UART?)
- PR	Prog	      - Use program memory
-_TR	T-state reset - Reset T-state counter for more efficient instruction speed		
+#define CI ((uint32_t)1<<24) // C reg in
+#define CO ((uint32_t)1<<25) // C reg out
+#define DI ((uint32_t)1<<26) // D reg in
+#define DO ((uint32_t)1<<27) // D reg out
+#define SI ((uint32_t)1<<28) // Stack Pointer in
+#define SO ((uint32_t)1<<29) // Stack Pointer out
+#define DM ((uint32_t)1<<30) // Display mode in (dec/signed/hex/octal/dascii)
+#define HL ((uint32_t)1<<31) // Halt CPU (not needed?)
 
-_CI	Reg C in	\
-_CO	Reg C out	|
-_DI	Reg D in	| - C,D, and SP registers
-_DO	Reg D out	|
-_SI	SP in		|
-_SO	SP out		/
-_DM	Disp mode in  - Which display mode: dec/signed/octal/hex/dascii
- HL	Halt          - Stop CPU (unneeded?)  
-*/
 uint32_t inline flip_bits(uint32_t instruction) {
-  instruction ^= (IL|RO|XI|YI|EO|MI|PO|AI|AO|BI|BO|RI|JP);
+  instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|RI|JP| FL|OI|TR| CI|CO|DI|DO|SI|SO|DM);
   return instruction;
 }
 
@@ -154,13 +135,12 @@ void setup() {
   Serial.println();
 
   #define FETCH PO|MI|IL|PC
+  
   uint32_t inst[][8] = {
                         {FETCH, 0, 0, 0, 0, 0, 0, 0}, // NOP 00
-                        {FETCH, PO|MI|PC, RO|MI, RO|XI, 0, 0, 0, 0}, // LDX addr 01
-                        {FETCH, PO|MI|PC, RO|XI, 0, 0, 0, 0, 0}, // LXI # 02
-                        {FETCH, PO|MI|PC, RO|MI, RO|YI, 0, 0, 0, 0}, // LDY addr 03
-                        {FETCH, PO|MI|PC, RO|YI, 0, 0, 0, 0, 0}, // LYI # 04
-                        {FETCH, EO|XI, 0, 0, 0, 0, 0, 0}, // ADD and output 05
+                        {FETCH, PO|MI|PC, RO|XI, 0, 0, 0, 0, 0}, // LXI # 01
+                        {FETCH, PO|MI|PC, RO|YI, 0, 0, 0, 0, 0}, // LYI # 02
+                        {FETCH, EO|XI, 0, 0, 0, 0, 0, 0}, // ADD and output 03
                       };
   Serial.println("Fetch micro-instruction");
   for (int addr = 0; addr < 8192; addr += 32) {
