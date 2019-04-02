@@ -65,7 +65,7 @@ _DM	Disp mode in  - Which display mode: dec/signed/octal/hex/dascii
  HL	Halt          - Stop CPU (unneeded?)  
 */
 uint32_t inline flip_bits(uint32_t instruction) {
-  instruction ^= (IL|RO|XI|EO|MI|PO|AI|AO|BI|BO|RI|JP);
+  instruction ^= (IL|RO|XI|YI|EO|MI|PO|AI|AO|BI|BO|RI|JP);
   return instruction;
 }
 
@@ -146,12 +146,12 @@ void setup() {
   pinMode(WRITE_EN, OUTPUT);
   Serial.begin(57600);
 
-//  Serial.println("Clearing EEPROM");
-//  for (int addr = 0; addr < 8192; addr += 1) {
-//    writeEEPROM(addr ,flip_bits(0));
-//    if(addr%256==0) Serial.print(".");
-//  }
-//  Serial.println();
+  Serial.println("Clearing EEPROM");
+  for (int addr = 0; addr < 8192; addr += 1) {
+    writeEEPROM(addr ,flip_bits(0));
+    if(addr%256==0) Serial.print(".");
+  }
+  Serial.println();
 
   #define FETCH PO|MI|IL|PC
   uint32_t inst[][8] = {
