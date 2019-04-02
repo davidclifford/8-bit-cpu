@@ -140,7 +140,8 @@ void setup() {
                         {FETCH, 0, 0, 0, 0, 0, 0, 0}, // NOP 00
                         {FETCH, PO|MI|PC, RO|XI, 0, 0, 0, 0, 0}, // LXI # 01
                         {FETCH, PO|MI|PC, RO|YI, 0, 0, 0, 0, 0}, // LYI # 02
-                        {FETCH, EO|XI, 0, 0, 0, 0, 0, 0}, // ADD and output 03
+                        {FETCH, EO|XI, 0, 0, 0, 0, 0, 0}, // ADX (X=X+Y) 03
+                        {FETCH, EO|YI, 0, 0, 0, 0, 0, 0}, // ADY (Y=X+Y) 04
                       };
   Serial.println("Fetch micro-instruction");
   for (int addr = 0; addr < 8192; addr += 32) {
