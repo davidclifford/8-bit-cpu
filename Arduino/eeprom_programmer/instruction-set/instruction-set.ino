@@ -127,12 +127,12 @@ void setup() {
   pinMode(WRITE_EN, OUTPUT);
   Serial.begin(57600);
 
-  Serial.println("Clearing EEPROM");
-  for (int addr = 0; addr < 8192; addr += 1) {
-    writeEEPROM(addr ,flip_bits(0));
-    if(addr%256==0) Serial.print(".");
-  }
-  Serial.println();
+//  Serial.println("Clearing EEPROM");
+//  for (int addr = 0; addr < 8192; addr += 1) {
+//    writeEEPROM(addr ,flip_bits(0));
+//    if(addr%256==0) Serial.print(".");
+//  }
+//  Serial.println();
 
   #define FETCH PO|MI|IL|PC
   
