@@ -23,18 +23,18 @@
 #define BI ((uint32_t)1<<10) // B reg in
 #define BO ((uint32_t)1<<11) // B reg out
 #define RI ((uint32_t)1<<12) // Ram in
-#define Y0 ((uint32_t)1<<13) // ALU Y zero
-#define CY ((uint32_t)1<<14) // ALU Carry in
-#define JP ((uint32_t)1<<15) // Jump (PC in)
+#define JP ((uint32_t)1<<13) // Jump (PC in)
+#define OI ((uint32_t)1<<14) // Output in (display)
+#define TR ((uint32_t)1<<15) // Reset T states
 
 #define S0 ((uint32_t)1<<16) // ALU setting 0
 #define S1 ((uint32_t)1<<17) // ALU setting 1
 #define S2 ((uint32_t)1<<18) // ALU setting 2
-#define RV ((uint32_t)1<<19) // Reverse bits into X&Y
-#define FL ((uint32_t)1<<20) // Load flags reg from ALU
-#define OI ((uint32_t)1<<21) // Output in (display)
-#define PR ((uint32_t)1<<22) // Use PRogram memory (or ROM?)
-#define TR ((uint32_t)1<<23) // Reset T states
+#define CY ((uint32_t)1<<19) // ALU Carry in
+#define Y0 ((uint32_t)1<<20) // ALU Y zero
+#define RV ((uint32_t)1<<21) // ALU Reverse bits into X&Y
+#define FL ((uint32_t)1<<21) // ALU Load flags reg from ALU
+#define PR ((uint32_t)1<<23) // Use PRogram memory (or ROM?)
 
 #define CI ((uint32_t)1<<24) // C reg in
 #define CO ((uint32_t)1<<25) // C reg out
@@ -61,7 +61,6 @@ void setAddress(int address, bool outputEnable) {
   digitalWrite(SHIFT_LATCH, HIGH);
   digitalWrite(SHIFT_LATCH, LOW);
 }
-
 
 /*
    Read a byte from the EEPROM at the specified address.
