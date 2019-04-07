@@ -9,6 +9,8 @@
 #define EEPROM_D7 12
 #define WRITE_EN 13
 
+#define DOT "."
+
 #define IL ((uint32_t)1<< 0) // Instruction reg load
 #define RO ((uint32_t)1<< 1) // Ram out
 #define XI ((uint32_t)1<< 2) // ALU X in
@@ -126,46 +128,51 @@ void setup() {
   pinMode(WRITE_EN, OUTPUT);
   Serial.begin(57600);
 
-  Serial.println("Clearing EEPROM");
+  Serial.println(F("Clearing EEPROM"));
   for (int addr = 0; addr < 8192; addr += 1) {
     writeEEPROM(addr ,flip_bits(0));
-    if(addr%256==0) Serial.print(".");
+    if(addr%256==0) Serial.print(DOT);
   }
   Serial.println();
 
   #define FETCH PO|MI|IL|PC
+  Serial.println(F("Programming EEPROM number 1"));
   
-  uint32_t inst[][8] = {
+  uint32_t inst[][8] PROGMEM = {
                         {FETCH, 0, 0, 0, 0, 0, 0, 0}, // NOP 00
                         {FETCH, PO|MI|PC, RO|XI, 0, 0, 0, 0, 0}, // LXI # 01
                         {FETCH, PO|MI|PC, RO|YI, 0, 0, 0, 0, 0}, // LYI # 02
                         {FETCH, EO|XI, 0, 0, 0, 0, 0, 0}, // ADX (X=X+Y) 03
                         {FETCH, EO|YI, 0, 0, 0, 0, 0, 0}, // ADY (Y=X+Y) 04
-                      };
-  Serial.println("Fetch micro-instruction");
+                        {FETCH, 0, 0, 0, 0, 0, 0, 0},                        
+                        {FETCH, 0, 0, 0, 0, 0, 0, 0},                        
+                        {FETCH, 0, 0, 0, 0, 0, 0, 0},                   
+    };
+  
+  Serial.println(F("Fetch micro-instruction"));
   for (int addr = 0; addr < 8192; addr += 32) {
     writeEEPROM(addr ,flip_bits(PO|MI|IL|PC));
     writeEEPROM(addr+1 ,flip_bits(PO|MI|IL|PC));
     writeEEPROM(addr+2 ,flip_bits(PO|MI|IL|PC));
     writeEEPROM(addr+3 ,flip_bits(PO|MI|IL|PC));
-    if(addr%256==0) Serial.print(".");
+    if(addr%256==0) Serial.print(DOT);
   }
   Serial.println();
 
-  Serial.println("Test instructions");
-  for (int ins = 0; ins < 6; ins++) {
+  Serial.println(F("Test instructions"));
+  for (int ins = 0; ins < 8; ins++) {
     for (int T = 0; T<8; T++) {
       for (int flags = 0; flags<4; flags++) {
         int addr = flags | T<<2 | ins<<5;
         writeEEPROM(addr ,flip_bits(inst[ins][T]));
       }
     }
-    Serial.print(".");
+    Serial.print(DOT);
   } 
   Serial.println();
 
   // Read and print out the contents of the EERPROM
-  Serial.println("Reading EEPROM");
+  Serial.println(F("Reading EEPROM"));
   printContents();
 }
 
