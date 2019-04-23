@@ -2,6 +2,8 @@
  * This sketch is specifically for programming the EEPROM used in the 8-bit
  * decimal display decoder described in https://youtu.be/dLh1n2dErzE
  */
+#define ROM 1
+
 #define SHIFT_DATA 2
 #define SHIFT_CLK 3
 #define SHIFT_LATCH 4
@@ -11,7 +13,7 @@
 
 #define DOT "."
 
-#define IL ((uint32_t)1<< 0) // Instruction reg load
+#define IL ((uint32_t)1<< 0) // Instruction reg load (from ROM)
 #define RO ((uint32_t)1<< 1) // Ram out
 #define XI ((uint32_t)1<< 2) // ALU X in
 #define YI ((uint32_t)1<< 3) // ALU Y in
@@ -36,7 +38,7 @@
 #define Y0 ((uint32_t)1<<20) // ALU Y zero
 #define RV ((uint32_t)1<<21) // ALU Reverse bits into X&Y
 #define FL ((uint32_t)1<<21) // ALU Load flags reg from ALU
-#define PR ((uint32_t)1<<23) // Use PRogram memory (or ROM?)
+#define MO ((uint32_t)1<<23) // ROM out
 
 #define CI ((uint32_t)1<<24) // C reg in
 #define CO ((uint32_t)1<<25) // C reg out
@@ -48,8 +50,12 @@
 #define HL ((uint32_t)1<<31) // Halt CPU (not needed?)
 
 uint32_t inline flip_bits(uint32_t instruction) {
-  instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|RI|JP| FL|OI|TR| CI|CO|DI|DO|SI|SO|DM);
+  instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|DM);
   return instruction;
+}
+
+void writeEEPROM(int address, uint32_t instruction) {
+  writeROM(address, 0xFF&(flip_bits(instruction)>>(ROM*8)));
 }
 
 /*
@@ -84,7 +90,7 @@ byte readEEPROM(int address) {
 /*
    Write a byte to the EEPROM at the specified address.
 */
-void writeEEPROM(int address, byte data) {
+void writeROM(int address, byte data) {
   setAddress(address, /*outputEnable*/ false);
   for (int pin = EEPROM_D0; pin <= EEPROM_D7; pin += 1) {
     pinMode(pin, OUTPUT);
@@ -107,7 +113,7 @@ void printContents() {
   for (int base = 0; base < 8192; base += 16) {
     byte data[16];
     for (int offset = 0; offset < 16; offset++) {
-      data[offset] = readEEPROM(base + offset);
+      data[offset] = flip_bits(readEEPROM(base + offset)<<(ROM*8))>>(ROM*8);
     }
 
     char buf[80];
@@ -128,45 +134,72 @@ void setup() {
   pinMode(WRITE_EN, OUTPUT);
   Serial.begin(57600);
 
-  Serial.println(F("Clearing EEPROM"));
-  for (int addr = 0; addr < 8192; addr += 1) {
-    writeEEPROM(addr ,flip_bits(0));
-    if(addr%256==0) Serial.print(DOT);
-  }
-  Serial.println();
+//  Serial.print(F("Clearing EEPROM "));
+//  Serial.println(ROM);
+//  for (int addr = 0; addr < 8192; addr += 1) {
+//    writeEEPROM(addr ,0);
+//    if(addr%256==0) Serial.print(DOT);
+//  }
+//  Serial.println();
 
   #define FETCH PO|MI|IL|PC
-  Serial.println(F("Programming EEPROM number 1"));
+  #define OPERAND PO|MI|PC
+  #define CLEAR 0
+  #define BSUB S0
+  #define SUB S1
+  #define ADD S0|S1
+  #define XOR S2
+  #define OR S2|S0
+  #define AND S2|S1
+  #define PRESET S2|S1|S0
+  
+  Serial.print(F("Programming EEPROM number "));
+  Serial.println(ROM);
   
   uint32_t inst[][8] PROGMEM = {
-                        {FETCH, 0, 0, 0, 0, 0, 0, 0}, // NOP 00
-                        {FETCH, PO|MI|PC, RO|XI, 0, 0, 0, 0, 0}, // LXI # 01
-                        {FETCH, PO|MI|PC, RO|YI, 0, 0, 0, 0, 0}, // LYI # 02
-                        {FETCH, EO|XI, 0, 0, 0, 0, 0, 0}, // ADX (X=X+Y) 03
-                        {FETCH, EO|YI, 0, 0, 0, 0, 0, 0}, // ADY (Y=X+Y) 04
-                        {FETCH, 0, 0, 0, 0, 0, 0, 0},                        
-                        {FETCH, 0, 0, 0, 0, 0, 0, 0},                        
-                        {FETCH, 0, 0, 0, 0, 0, 0, 0},                   
+                        {FETCH|TR, 0, 0, 0, 0, 0, 0, 0},             // NOP      00
+                        {FETCH, OPERAND, AI|RO|TR, 0, 0, 0, 0, 0},   // LD A,(#) 01
+                        {FETCH, OPERAND, BI|RO|TR, 0, 0, 0, 0, 0},   // LD B,(#) 02        
+                        {FETCH, OPERAND, AO|RI|TR, 0, 0, 0, 0, 0},   // ST A,(#) 03    
+                        {FETCH, OPERAND, BO|RI|TR, 0, 0, 0, 0, 0},   // ST B,(#) 04        
+                        {FETCH, OPERAND, RO|AI|TR, 0, 0, 0, 0, 0},   // MOV A,#  05
+                        {FETCH, OPERAND, RO|BI|TR, 0, 0, 0, 0, 0},   // MOV B,#  06
+                        {FETCH, AI|BO|TR, 0, 0 ,0, 0, 0},            // MOV A,B  07
+                        {FETCH, BI|AO|TR, 0, 0 ,0, 0, 0},            // MOV B,A  08
+                        {FETCH, AO|XI, BO|YI, ADD|EO|AI|TR, 0, 0, 0, 0}, // ADD A,B  09
+                        {FETCH, AO|XI, BO|YI, ADD|EO|BI|TR, 0, 0, 0, 0}, // ADD B,A  0A
+                        {FETCH, AO|OI|TR, 0, 0, 0, 0, 0, 0},         // OUT A 05 0B
+                        {FETCH, BO|OI|TR, 0, 0, 0, 0, 0, 0},         // OUT B 06 0C                    
+                        {FETCH, OPERAND, RO|JP|TR, 0, 0, 0, 0, 0},   // JP #addr 0D            
+                        {FETCH, AO|XI, OPERAND, RO|YI, EO|AI|TR, 0, 0, 0}, // ADD A,#  0E
+                        {FETCH, BO|XI, OPERAND, RO|YI, EO|BI|TR, 0, 0, 0}, // ADD B,#  0F
+
+                        {FETCH, OPERAND, OI|TR, 0, 0, 0, 0, 0},      // OUT #      10               
     };
+
   
-  Serial.println(F("Fetch micro-instruction"));
-  for (int addr = 0; addr < 8192; addr += 32) {
-    writeEEPROM(addr ,flip_bits(PO|MI|IL|PC));
-    writeEEPROM(addr+1 ,flip_bits(PO|MI|IL|PC));
-    writeEEPROM(addr+2 ,flip_bits(PO|MI|IL|PC));
-    writeEEPROM(addr+3 ,flip_bits(PO|MI|IL|PC));
-    if(addr%256==0) Serial.print(DOT);
+  Serial.println(F("Fill with NOP"));
+  for (int ins = 0; ins < 256; ins ++) {
+    for(int T=0; T<8; T++) {
+      for(int flags = 0; flags<4; flags++) {
+        int addr = flags | T<<2 | ins<<5;
+        writeEEPROM(addr ,inst[0][T]);
+      }
+    }
+    if(ins%16==0) Serial.println();
+    Serial.print(DOT);
   }
   Serial.println();
 
   Serial.println(F("Test instructions"));
-  for (int ins = 0; ins < 8; ins++) {
+  for (int ins = 0; ins < 17; ins++) {
     for (int T = 0; T<8; T++) {
       for (int flags = 0; flags<4; flags++) {
         int addr = flags | T<<2 | ins<<5;
-        writeEEPROM(addr ,flip_bits(inst[ins][T]));
+        writeEEPROM(addr ,inst[ins][T]);
       }
     }
+    if(ins%16==0) Serial.println();
     Serial.print(DOT);
   } 
   Serial.println();
