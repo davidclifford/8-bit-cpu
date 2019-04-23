@@ -2,7 +2,7 @@
  * This sketch is specifically for programming the EEPROM used in the 8-bit
  * decimal display decoder described in https://youtu.be/dLh1n2dErzE
  */
-#define ROM 1
+#define ROM 3
 
 #define SHIFT_DATA 2
 #define SHIFT_CLK 3
@@ -113,7 +113,7 @@ void printContents() {
   for (int base = 0; base < 8192; base += 16) {
     byte data[16];
     for (int offset = 0; offset < 16; offset++) {
-      data[offset] = flip_bits(readEEPROM(base + offset)<<(ROM*8))>>(ROM*8);
+      data[offset] = flip_bits((uint32_t)readEEPROM(base + offset)<<(ROM*8))>>(ROM*8);
     }
 
     char buf[80];
@@ -178,7 +178,7 @@ void setup() {
     };
 
   
-  Serial.println(F("Fill with NOP"));
+  Serial.print(F("Fill with NOP"));
   for (int ins = 0; ins < 256; ins ++) {
     for(int T=0; T<8; T++) {
       for(int flags = 0; flags<4; flags++) {
@@ -191,7 +191,7 @@ void setup() {
   }
   Serial.println();
 
-  Serial.println(F("Test instructions"));
+  Serial.print(F("Test instructions"));
   for (int ins = 0; ins < 17; ins++) {
     for (int T = 0; T<8; T++) {
       for (int flags = 0; flags<4; flags++) {
