@@ -15,4 +15,4 @@ Prog 1. Fib.
 0C 03 X=X+Y ->89
 0D 04 Y=Y+X ->144
 0E 03 X=X+Y ->233
-0F 04 Y=Y+X ->121
+0F 04 Y=Y+X ->121 (overflow)

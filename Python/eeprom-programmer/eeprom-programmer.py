@@ -37,6 +37,7 @@ DM = uint32(1) << 30  # Display mode in (dec/signed/hex/octal/dascii)
 HL = uint32(1) << 31  # Halt CPU (not needed?)
 
 OPERAND = PO | MI | PC
+FETCH = OPERAND | IL
 
 # print("{:08X}".format(IL|PO|PC|MI|HL))
 
@@ -61,7 +62,7 @@ def _w(dd):
 # ss dd rr 00 A 01 B 10 C
 def instruction(addr, *micro):
     for f in range(4):
-        instr[addr][0][f] = PO | MI | IL | PC
+        instr[addr][0][f] = FETCH
     i = 0
     for m in micro:
         i += 1
@@ -73,17 +74,32 @@ def instruction(addr, *micro):
             instr[addr][bl][f] = 0
 
 
-# move instructions 0x10
-for dd in range(4):
-    for ss in range(4):
-        if dd == ss:
-            instruction(0x00 | dd << 2 | ss, OPERAND, RO | _w(dd))
-        else:
-            instruction(0x00 | dd << 2 | ss, _r(ss) | _w(dd))
+def print_all():
+    for i in range(256):
+        print('instruction: '+'{:02X}'.format(i))
+        for t in range(8):
+            print("{:08X}".format(instr[i][t][0]))
+        print()
 
 
-for i in range(256):
-    print('instruction: '+'{:02X}'.format(i))
-    for t in range(8):
-        print("{:08X}".format(instr[i][t][0]))
-    print()
+def init_all_nop():
+    for i in range(256):
+        for f in range(4):
+            instr[i][0][f] = FETCH | TR
+
+
+def main():
+    init_all_nop()
+
+    # move instructions 0x10
+    for dd in range(4):
+        for ss in range(4):
+            if dd == ss:
+                instruction(0x00 | dd << 2 | ss, OPERAND, RO | _w(dd))
+            else:
+                instruction(0x00 | dd << 2 | ss, _r(ss) | _w(dd))
+
+    print_all()
+
+
+main()
