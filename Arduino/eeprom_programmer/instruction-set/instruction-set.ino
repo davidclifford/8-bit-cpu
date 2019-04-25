@@ -38,7 +38,7 @@
 #define Y0 ((uint32_t)1<<20) // ALU Y zero
 #define RV ((uint32_t)1<<21) // ALU Reverse bits into X&Y
 #define FL ((uint32_t)1<<21) // ALU Load flags reg from ALU
-#define MO ((uint32_t)1<<23) // ROM out
+#define PR ((uint32_t)1<<23) // Address PRogram code
 
 #define CI ((uint32_t)1<<24) // C reg in
 #define CO ((uint32_t)1<<25) // C reg out

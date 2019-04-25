@@ -36,5 +36,54 @@ SO = uint32(1) << 29  # Stack Pointer out
 DM = uint32(1) << 30  # Display mode in (dec/signed/hex/octal/dascii)
 HL = uint32(1) << 31  # Halt CPU (not needed?)
 
-print("{:08X}".format(IL|PO|PC|MI|HL))
+OPERAND = PO | MI | PC
 
+# print("{:08X}".format(IL|PO|PC|MI|HL))
+
+instr = [[[0 for i in range(4)] for t in range(8)] for f in range(256)]
+
+
+def flip_bits(instruction: uint32) -> uint32:
+    instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|DM)
+    return instruction
+
+
+def _r(ss):
+    r = (AI, BI, CI, DI)[ss]
+    return r
+
+
+def _w(dd):
+    r = (AO, BO, CO, DO)[dd]
+    return r
+
+
+# ss dd rr 00 A 01 B 10 C
+def instruction(addr, *micro):
+    for f in range(4):
+        instr[addr][0][f] = PO | MI | IL | PC
+    i = 0
+    for m in micro:
+        i += 1
+        for f in range(4):
+            instr[addr][i][f] = m
+    instr[addr][i][0] = instr[addr][i][0] | TR
+    for bl in range(i+1, 8):
+        for f in range(4):
+            instr[addr][bl][f] = 0
+
+
+# move instructions 0x10
+for dd in range(4):
+    for ss in range(4):
+        if dd == ss:
+            instruction(0x00 | dd << 2 | ss, OPERAND, RO | _w(dd))
+        else:
+            instruction(0x00 | dd << 2 | ss, _r(ss) | _w(dd))
+
+
+for i in range(256):
+    print('instruction: '+'{:02X}'.format(i))
+    for t in range(8):
+        print("{:08X}".format(instr[i][t][0]))
+    print()
