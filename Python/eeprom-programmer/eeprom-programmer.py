@@ -77,9 +77,11 @@ def instruction(addr, *micro):
 def print_all():
     for i in range(256):
         print('instruction: '+'{:02X}'.format(i))
-        for t in range(8):
-            print("{:08X}".format(instr[i][t][0]))
-        print()
+        for f in range(4):
+            print(('cf', 'cF', 'Cf', 'CF')[f])
+            for t in range(8):
+                print("{:08X}".format(instr[i][t][f]))
+            print()
 
 
 def init_all_nop():
