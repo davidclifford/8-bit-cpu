@@ -76,13 +76,25 @@ LSR = 0xE4
 ROL = 0xE8
 ROR = 0xEC
 
+NOP = 0x0
+HLT = 0x1
+JMP = 0xF0
+JPZ = 0xF1
+JPN = 0xF2
+# 0xF3
+JPV = 0xF4
+# 0xF5
+# 0xF6
+# 0xF7
+JPC = 0xF8
+
 # print("{:08X}".format(IL|PO|PC|MI|HL))
 
 instr = [[[0 for i in range(4)] for t in range(8)] for f in range(256)]
 
 
 def flip_bits(instruction: uint32) -> uint32:
-    instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|DM)
+    instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|IO)
     return instruction
 
 
@@ -165,12 +177,21 @@ def unary_instructions():
         instruction(LSR | rr, _r(rr) | RV | XI | YI, ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD | _w(rr))
         instruction_c(ROL | rr, False, _r(rr) | XI | YI, ALU_ADD | FL, ALU_ADD | EO | _w(rr) | FL)
         instruction_c(ROL | rr, True, _r(rr) | XI | YI, ALU_ADD | FL, CY | ALU_ADD | EO | _w(rr) | FL)
-        instruction_c(ROR | rr, False, _r(rr) | RV | XI | YI, ALU_ADD | FL, ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD, _w(rr))
-        instruction_c(ROR | rr,  True, _r(rr) | RV | XI | YI, ALU_ADD | FL, CY | ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD | EO | _w(rr))
+        instruction_c(ROR | rr, False, _r(rr) | RV | XI | YI, ALU_ADD | FL,
+                      ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD, _w(rr))
+        instruction_c(ROR | rr,  True, _r(rr) | RV | XI | YI, ALU_ADD | FL,
+                      CY | ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD | EO | _w(rr))
 
 
 def other_instructions():
-    pass
+    instruction(JMP, OPERAND, RO | JP)
+    instruction_c(JPC, True, OPERAND, RO | JP)
+    instruction_c_f(JPZ, True, True, OPERAND, RO | JP)
+    instruction_c_f(JPZ, False, True, OPERAND, RO | JP)
+    instruction_c_f(JPN, True, True, OPERAND, RO | JP)
+    instruction_c_f(JPN, False, True, OPERAND, RO | JP)
+    instruction_c_f(JPV, True, True, OPERAND, RO | JP)
+    instruction_c_f(JPV, False, True, OPERAND, RO | JP)
 
 
 def print_all():
