@@ -48,6 +48,15 @@ ALU_OR = S2 | S0
 ALU_AND = S2 | S1
 ALU_SET = S2 | S1 | S0
 
+NOP = 0x00
+SP = 0x01
+CALL = 0x02
+RET = 0x03
+
+CALR = 0x4
+PUSH = 0x8
+POP = 0xC
+
 MOV = 0x10
 LD = 0x20
 ST = 0x30
@@ -76,8 +85,6 @@ LSR = 0xE4
 ROL = 0xE8
 ROR = 0xEC
 
-NOP = 0x0
-HLT = 0x1
 JMP = 0xF0
 JPZ = 0xF1
 JPN = 0xF2
@@ -87,6 +94,11 @@ JPV = 0xF4
 # 0xF6
 # 0xF7
 JPC = 0xF8
+# 0xF9
+# 0xFA
+HLT = 0xFB
+JPR = 0xFC
+
 
 # print("{:08X}".format(IL|PO|PC|MI|HL))
 
@@ -119,7 +131,7 @@ def instruction_c_f(address, carry, flags, *micro):
         instr[address][t][f] = m
     instr[address][t][0] = instr[address][t][0] | TR
     for bl in range(t+1, 8):
-        instr[address][bl][f] = 0
+        instr[address][bl][f] = TR
 
 
 def instruction_c(address, carry, *micro):
@@ -182,8 +194,17 @@ def unary_instructions():
         instruction_c(ROR | rr,  True, _r(rr) | RV | XI | YI, ALU_ADD | FL,
                       CY | ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD | EO | _w(rr))
 
+        instruction(CALR | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, _r(rr) | JP)
+        instruction(PUSH | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, _r(rr) | RI)
+        instruction(POP | rr, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | _w(rr))
+        instruction(JPR | rr, _r(rr) | JP)
+
 
 def other_instructions():
+    # nop hlt
+    instruction(NOP,)
+    instruction(HLT, HL)
+    # jump
     instruction(JMP, OPERAND, RO | JP)
     instruction_c(JPC, True, OPERAND, RO | JP)
     instruction_c_f(JPZ, True, True, OPERAND, RO | JP)
@@ -192,6 +213,10 @@ def other_instructions():
     instruction_c_f(JPN, False, True, OPERAND, RO | JP)
     instruction_c_f(JPV, True, True, OPERAND, RO | JP)
     instruction_c_f(JPV, False, True, OPERAND, RO | JP)
+    # stack based
+    instruction(SP, OPERAND, RO | SI)
+    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, OPERAND, RO | JP)
+    instruction(RET, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | JP)
 
 
 def print_all():
@@ -202,6 +227,14 @@ def print_all():
         for t in range(8):
             print("{:08X}".format(instr[i][t][0]))
         print()
+
+
+def dump_all():
+    for i in range(256):
+        for t in range(8):
+            for f in range(4):
+                flipped = flip_bits(instr[i][t][f])
+                print("{:08X}".format(flipped))
 
 
 def init_all_nop():
@@ -217,6 +250,7 @@ def main():
     other_instructions()
 
     print_all()
+    dump_all()
 
 
 main()
