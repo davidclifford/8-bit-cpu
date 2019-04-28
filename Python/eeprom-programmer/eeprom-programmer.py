@@ -1,4 +1,7 @@
 from numpy import uint32
+import serial
+import io
+import time
 
 IL = uint32(1) << 0  # Instruction reg load (from ROM)
 RO = uint32(1) << 1  # Ram out
@@ -243,13 +246,26 @@ def init_all_nop():
             instr[i][0][f] = FETCH | TR
 
 
-def main():
-    init_all_nop()
-    binary_instructions()
-    unary_instructions()
-    other_instructions()
+def setup_serial():
+    with serial.Serial('COM7', 57600, timeout=1) as ser:
+        sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
+        while True:
+            sio.write("hello there!\n")
+            sio.flush()  # it is buffering
+            line = sio.read()
+            print(line)
 
-    print_all()
+
+def main():
+
+    setup_serial()
+
+    # init_all_nop()
+    # binary_instructions()
+    # unary_instructions()
+    # other_instructions()
+    #
+    # print_all()
     dump_all()
 
 
