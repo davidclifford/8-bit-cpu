@@ -32,28 +32,41 @@ char * readLine(char * buffer, int len)
     return buffer;
 }
 
-String get_input() {
-  String command = "";
-  while (Serial.available() <= 0) {
-    delay(1);
+void read_rom() {
+  Serial.print("Dumping contents of ROM\n");
+}
+
+void save_rom() {
+  Serial.print("Saving ROM\n");
+}
+
+boolean do_command(char command[]) {
+  char comm = command[0];
+  if (comm == 'R') {
+    read_rom();
+  } else if (comm == 'S') {
+    save_rom();
+  } else if (comm == 'X') {
+    return true;
+  } else if (comm == 'G') {
+    Serial.print("Ready\n");
   }
-  while (Serial.available() > 0) {
-    char c = (char)Serial.read();
-    if (c == 13) break;
-    command = command + c;
-  }
-  return command;
+  return false;
 }
 
 void loop() {
 
     word w;
-    char line[80];
+    char line[256];
+    char *input;
     uint32_t numBytes;
+    boolean halt = false;
 
-    Serial.print("\n>");
-    Serial.flush();
-    readLine(line, sizeof(line));  
-    Serial.print(line);
-    Serial.flush();
+    input = readLine(line, sizeof(line));  
+    halt = do_command(line);
+    if (halt) {
+      Serial.print("Halting\n");
+      delay(1000);
+      exit(1);
+    }
 }

@@ -246,15 +246,37 @@ def init_all_nop():
             instr[i][0][f] = FETCH | TR
 
 
+def read(ser):
+    out = ""
+    print('xxxxx')
+    i = ser.read(256)
+    print('i', i)
+    out = out + i
+    print('out', out)
+    return out
+
+
+def send_command(command, ser, sio):
+    while True:
+        com = bytes(command + '\n', 'utf-8')
+        ser.write(com)
+        ret_com = sio.readline(256)
+        if ret_com == command+'\n':
+            return
+
+
 def setup_serial():
     with serial.Serial('COM7', 57600, timeout=1) as ser:
         sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
-        while True:
-            sio.write("hello there!\n")
-            sio.flush()  # it is buffering
-            line = sio.read()
-            print(line)
+        send_command('G', ser, sio)
+        print(sio.readline(256))
 
+        send_command('S', ser, sio)
+        message = sio.readline(256)
+        print('>', message)
+
+        send_command('R', ser, sio)
+        print(sio.readline(256))
 
 def main():
 
@@ -266,7 +288,7 @@ def main():
     # other_instructions()
     #
     # print_all()
-    dump_all()
+    # dump_all()
 
 
 main()
