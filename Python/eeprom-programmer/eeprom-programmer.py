@@ -11,7 +11,6 @@ EO = uint32(1) << 4  # ALU result out
 MI = uint32(1) << 5  # Mem address in
 PC = uint32(1) << 6  # Prog count increment
 PO = uint32(1) << 7  # Prog counter out
-MO = RO  # ROM out = RAM out
 
 AI = uint32(1) << 8  # A reg in
 AO = uint32(1) << 9  # A reg out
@@ -29,7 +28,7 @@ CY = uint32(1) << 19  # ALU Carry in
 Y0 = uint32(1) << 20  # ALU Y zero
 RV = uint32(1) << 21  # ALU Reverse bits into X&Y
 FL = uint32(1) << 21  # ALU Load flags reg from ALU
-PR = uint32(1) << 23  # Use Program memory (replace with MO when using ROM)
+PR = uint32(1) << 23  # Use Program memory
 
 CI = uint32(1) << 24  # C reg in
 CO = uint32(1) << 25  # C reg out
@@ -39,6 +38,10 @@ SI = uint32(1) << 28  # Stack Pointer in
 SO = uint32(1) << 29  # Stack Pointer out
 IO = uint32(1) << 30  # Input reg out
 HL = uint32(1) << 31  # Halt CPU (not needed?)
+
+MO = RO        # Use RAM for operands
+# MO = PR | RO  # Use program memory for operands
+# MO = PR       # Use ROM for operands
 
 OPERAND = PO | MI | PC
 FETCH = OPERAND | IL
