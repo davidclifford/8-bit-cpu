@@ -11,6 +11,7 @@ EO = uint32(1) << 4  # ALU result out
 MI = uint32(1) << 5  # Mem address in
 PC = uint32(1) << 6  # Prog count increment
 PO = uint32(1) << 7  # Prog counter out
+MO = RO  # ROM out = RAM out
 
 AI = uint32(1) << 8  # A reg in
 AO = uint32(1) << 9  # A reg out
@@ -28,7 +29,7 @@ CY = uint32(1) << 19  # ALU Carry in
 Y0 = uint32(1) << 20  # ALU Y zero
 RV = uint32(1) << 21  # ALU Reverse bits into X&Y
 FL = uint32(1) << 21  # ALU Load flags reg from ALU
-MO = uint32(1) << 23  # ROM out
+PR = uint32(1) << 23  # Use Program memory (replace with MO when using ROM)
 
 CI = uint32(1) << 24  # C reg in
 CO = uint32(1) << 25  # C reg out
@@ -109,7 +110,7 @@ instr = [[[0 for i in range(4)] for t in range(8)] for f in range(256)]
 
 
 def flip_bits(instruction: uint32) -> uint32:
-    instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|IO)
+    instruction ^= (IL|RO|MO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|IO)
     return instruction
 
 
@@ -151,19 +152,19 @@ def binary_instructions():
     for dd in range(4):
         for ss in range(4):
             if dd == ss:
-                instruction(MOV | dd << 2 | ss, OPERAND, RO | _w(dd))
-                instruction(LD | dd << 2 | ss, OPERAND, RO | MI, RO | _w(dd))
+                instruction(MOV | dd << 2 | ss, OPERAND, MO | _w(dd))
+                instruction(LD | dd << 2 | ss, OPERAND, MO | MI, MO | _w(dd))
                 instruction(ST | dd << 2 | ss, OPERAND, RI | _r(dd))
-                instruction(ADD | dd << 2 | ss, OPERAND, RO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
-                instruction_c(ADC | dd << 2 | ss, False, OPERAND, RO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
-                instruction_c(ADC | dd << 2 | ss, True, OPERAND, RO | YI, _r(dd) | XI, ALU_ADD | CY | EO | _w(dd) | FL)
-                instruction(SUB | dd << 2 | ss, OPERAND, RO | YI, _r(dd) | XI, ALU_SUB | CY | EO | _w(dd) | FL)
-                instruction_c(SBB | dd << 2 | ss, False, OPERAND, RO | YI, _r(dd) | XI, ALU_SUB | CY | EO | _w(dd) | FL)
-                instruction_c(SBB | dd << 2 | ss, True, OPERAND, RO | YI, _r(dd) | XI, ALU_SUB | EO | _w(dd) | FL)
-                instruction(AND | dd << 2 | ss, OPERAND, RO | YI, _r(dd) | XI, ALU_AND | EO | _w(dd) | FL)
-                instruction(OR | dd << 2 | ss, OPERAND, RO | YI, _r(dd) | XI, ALU_OR | EO | _w(dd) | FL)
-                instruction(XOR | dd << 2 | ss, OPERAND, RO | YI, _r(dd) | XI, ALU_XOR | EO | _w(dd) | FL)
-                instruction(CMP | dd << 2 | ss, OPERAND, RO | YI, _r(dd) | XI, ALU_SUB | FL)
+                instruction(ADD | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
+                instruction_c(ADC | dd << 2 | ss, False, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
+                instruction_c(ADC | dd << 2 | ss, True, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | CY | EO | _w(dd) | FL)
+                instruction(SUB | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_SUB | CY | EO | _w(dd) | FL)
+                instruction_c(SBB | dd << 2 | ss, False, OPERAND, MO | YI, _r(dd) | XI, ALU_SUB | CY | EO | _w(dd) | FL)
+                instruction_c(SBB | dd << 2 | ss, True, OPERAND, MO | YI, _r(dd) | XI, ALU_SUB | EO | _w(dd) | FL)
+                instruction(AND | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_AND | EO | _w(dd) | FL)
+                instruction(OR | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_OR | EO | _w(dd) | FL)
+                instruction(XOR | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_XOR | EO | _w(dd) | FL)
+                instruction(CMP | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_SUB | FL)
             else:
                 instruction(MOV | dd << 2 | ss, _r(ss) | _w(dd))
                 instruction(LD | dd << 2 | ss, _r(ss) | MI, RO | _w(dd))
@@ -208,17 +209,17 @@ def other_instructions():
     instruction(NOP,)
     instruction(HLT, HL)
     # jump
-    instruction(JMP, OPERAND, RO | JP)
-    instruction_c(JPC, True, OPERAND, RO | JP)
-    instruction_c_f(JPZ, True, True, OPERAND, RO | JP)
-    instruction_c_f(JPZ, False, True, OPERAND, RO | JP)
-    instruction_c_f(JPN, True, True, OPERAND, RO | JP)
-    instruction_c_f(JPN, False, True, OPERAND, RO | JP)
-    instruction_c_f(JPV, True, True, OPERAND, RO | JP)
-    instruction_c_f(JPV, False, True, OPERAND, RO | JP)
+    instruction(JMP, OPERAND, MO | JP)
+    instruction_c(JPC, True, OPERAND, MO | JP)
+    instruction_c_f(JPZ, True, True, OPERAND, MO | JP)
+    instruction_c_f(JPZ, False, True, OPERAND, MO | JP)
+    instruction_c_f(JPN, True, True, OPERAND, MO | JP)
+    instruction_c_f(JPN, False, True, OPERAND, MO | JP)
+    instruction_c_f(JPV, True, True, OPERAND, MO | JP)
+    instruction_c_f(JPV, False, True, OPERAND, MO | JP)
     # stack based
-    instruction(SP, OPERAND, RO | SI)
-    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, OPERAND, RO | JP)
+    instruction(SP, OPERAND, MO | SI)
+    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, OPERAND, MO | JP)
     instruction(RET, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | JP)
 
 
