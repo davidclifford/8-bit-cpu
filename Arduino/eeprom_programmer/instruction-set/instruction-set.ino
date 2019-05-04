@@ -2,7 +2,7 @@
  * This sketch is specifically for programming the EEPROM used in the 8-bit
  * decimal display decoder described in https://youtu.be/dLh1n2dErzE
  */
-#define ROM 3
+#define ROM 0
 
 #define SHIFT_DATA 2
 #define SHIFT_CLK 3
@@ -13,7 +13,7 @@
 
 #define DOT "."
 
-#define IL ((uint32_t)1<< 0) // Instruction reg load (from ROM)
+#define IL ((uint32_t)1<< 0) // Instruction reg load
 #define RO ((uint32_t)1<< 1) // Ram out
 #define XI ((uint32_t)1<< 2) // ALU X in
 #define YI ((uint32_t)1<< 3) // ALU Y in
@@ -37,8 +37,8 @@
 #define CY ((uint32_t)1<<19) // ALU Carry in
 #define Y0 ((uint32_t)1<<20) // ALU Y zero
 #define RV ((uint32_t)1<<21) // ALU Reverse bits into X&Y
-#define FL ((uint32_t)1<<21) // ALU Load flags reg from ALU
-#define PR ((uint32_t)1<<23) // Address PRogram code
+#define FL ((uint32_t)1<<22) // ALU Load flags reg from ALU
+#define HL ((uint32_t)1<<23) // Halt CPU (not needed?)
 
 #define CI ((uint32_t)1<<24) // C reg in
 #define CO ((uint32_t)1<<25) // C reg out
@@ -46,11 +46,12 @@
 #define DO ((uint32_t)1<<27) // D reg out
 #define SI ((uint32_t)1<<28) // Stack Pointer in
 #define SO ((uint32_t)1<<29) // Stack Pointer out
-#define DM ((uint32_t)1<<30) // Display mode in (dec/signed/hex/octal/dascii)
-#define HL ((uint32_t)1<<31) // Halt CPU (not needed?)
+#define IO ((uint32_t)1<<30) // Input from nano
+//#define MO ((uint32_t)1<<31) // Memory out from ROM
+#define MO RO
 
 uint32_t inline flip_bits(uint32_t instruction) {
-  instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|DM);
+  instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|IO);
   return instruction;
 }
 
@@ -157,42 +158,45 @@ void setup() {
   Serial.println(ROM);
   
   uint32_t inst[][8] PROGMEM = {
-                        {FETCH|TR, 0, 0, 0, 0, 0, 0, 0},             // NOP      00
-                        {FETCH, OPERAND, AI|RO|TR, 0, 0, 0, 0, 0},   // LD A,(#) 01
-                        {FETCH, OPERAND, BI|RO|TR, 0, 0, 0, 0, 0},   // LD B,(#) 02        
-                        {FETCH, OPERAND, AO|RI|TR, 0, 0, 0, 0, 0},   // ST A,(#) 03    
-                        {FETCH, OPERAND, BO|RI|TR, 0, 0, 0, 0, 0},   // ST B,(#) 04        
-                        {FETCH, OPERAND, RO|AI|TR, 0, 0, 0, 0, 0},   // MOV A,#  05
-                        {FETCH, OPERAND, RO|BI|TR, 0, 0, 0, 0, 0},   // MOV B,#  06
-                        {FETCH, AI|BO|TR, 0, 0 ,0, 0, 0},            // MOV A,B  07
-                        {FETCH, BI|AO|TR, 0, 0 ,0, 0, 0},            // MOV B,A  08
-                        {FETCH, AO|XI, BO|YI, ADD|EO|AI|TR, 0, 0, 0, 0}, // ADD A,B  09
-                        {FETCH, AO|XI, BO|YI, ADD|EO|BI|TR, 0, 0, 0, 0}, // ADD B,A  0A
-                        {FETCH, AO|OI|TR, 0, 0, 0, 0, 0, 0},         // OUT A 05 0B
-                        {FETCH, BO|OI|TR, 0, 0, 0, 0, 0, 0},         // OUT B 06 0C                    
-                        {FETCH, OPERAND, RO|JP|TR, 0, 0, 0, 0, 0},   // JP #addr 0D            
-                        {FETCH, AO|XI, OPERAND, RO|YI, EO|AI|TR, 0, 0, 0}, // ADD A,#  0E
-                        {FETCH, BO|XI, OPERAND, RO|YI, EO|BI|TR, 0, 0, 0}, // ADD B,#  0F
+                        {FETCH|TR, 0, 0, 0, 0, 0, 0, 0},                 // NOP      00
+                        {FETCH, OPERAND, MO|MI, RO|AI|TR, 0, 0, 0, 0},   // LD A,(#) 01
+                        {FETCH, OPERAND, MO|MI, RO|BI|TR, 0, 0, 0, 0},   // LD B,(#) 02        
+                        {FETCH, OPERAND, MO|MI, AO|RI|TR, 0, 0, 0, 0},   // ST A,(#) 03    
+                        {FETCH, OPERAND, MO|MI, BO|RI|TR, 0, 0, 0, 0},   // ST B,(#) 04        
+                        {FETCH, OPERAND, MO|AI|TR, 0, 0, 0, 0, 0},       // MOV A,#  05
+                        {FETCH, OPERAND, MO|BI|TR, 0, 0, 0, 0, 0},       // MOV B,#  06
+                        {FETCH, AI|BO|TR, 0, 0 ,0, 0, 0},                // MOV A,B  07
+                        {FETCH, BI|AO|TR, 0, 0 ,0, 0, 0},                // MOV B,A  08
+                        {FETCH, AO|XI, BO|YI, ADD|EO|AI|FL|TR, 0, 0, 0, 0},    // ADD A,B  09
+                        {FETCH, AO|XI, BO|YI, SUB|CY|EO|AI|FL|TR, 0, 0, 0, 0}, // SUB A,B  0A
+                        {FETCH, AO|XI, BO|YI, SUB|CY|EO|FL|TR, 0, 0, 0, 0},    // CMP A,B  0B
+                        {FETCH, AO|OI|TR, 0, 0, 0, 0, 0, 0},             // OUT A 0C
+                        {FETCH, OPERAND, MO|OI|TR, 0, 0, 0, 0, 0},       // OUT # 0D               
+                        {FETCH, OPERAND, MO|JP|TR, 0, 0, 0, 0, 0},       // JP #addr 0E            
+                        {FETCH, AO|XI, OPERAND, MO|YI, ADD|EO|AI|TR, 0, 0, 0},   // ADD A,#  0F
+                        {FETCH, AO|XI, OPERAND, MO|YI, SUB|CY|EO|AI|TR, 0, 0, 0},// SUB A,#  10
+                        {FETCH, AO|XI, Y0|ADD|CY|EO|AI|TR, 0, 0, 0, 0, 0},  // INC A  11
+                        {FETCH, AO|XI, Y0|SUB|EO|AI|TR, 0, 0, 0, 0, 0},  // DEC A  12
+                        {FETCH, HL, 0, 0, 0, 0, 0, 0},                   // HALT   13
 
-                        {FETCH, OPERAND, OI|TR, 0, 0, 0, 0, 0},      // OUT #      10               
     };
 
   
-  Serial.print(F("Fill with NOP"));
-  for (int ins = 0; ins < 256; ins ++) {
-    for(int T=0; T<8; T++) {
-      for(int flags = 0; flags<4; flags++) {
-        int addr = flags | T<<2 | ins<<5;
-        writeEEPROM(addr ,inst[0][T]);
-      }
-    }
-    if(ins%16==0) Serial.println();
-    Serial.print(DOT);
-  }
-  Serial.println();
+//  Serial.print(F("Fill with NOP"));
+//  for (int ins = 0; ins < 256; ins ++) {
+//    for(int T=0; T<8; T++) {
+//      for(int flags = 0; flags<4; flags++) {
+//        int addr = flags | T<<2 | ins<<5;
+//        writeEEPROM(addr ,inst[0][T]);
+//      }
+//    }
+//    if(ins%16==0) Serial.println();
+//    Serial.print(DOT);
+//  }
+//  Serial.println();
 
   Serial.print(F("Test instructions"));
-  for (int ins = 0; ins < 17; ins++) {
+  for (int ins = 0; ins < 19; ins++) {
     for (int T = 0; T<8; T++) {
       for (int flags = 0; flags<4; flags++) {
         int addr = flags | T<<2 | ins<<5;
