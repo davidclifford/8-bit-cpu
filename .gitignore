@@ -1,5 +1,2 @@
-/d/dev/8-bit-cpu/Python/eeprom-programmer/.idea/**
-/d/dev/8-bit-cpu/Python/eeprom-programmer/venv/**
-/d/dev/8-bit-cpu/Python/eeprom-programmer/.idea/**
-/d/dev/8-bit-cpu/Python/eeprom-programmer/venv/**
-/d/dev/8-bit-cpu/.idea/**
+.idea/
+venv/

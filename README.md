@@ -6,21 +6,22 @@ Also see James Bates videos https://www.youtube.com/watch?v=gqYFT6iecHw&list=PL_
 Improvements and thoughts making my own:
 
 Even though Ben Eaters CPU is 8-bit it uses only 4 bits for the address
-giving it only 16 locations for instructions or data.
+giving it only 16 locations for instructions and/or data.
 
 The most obvious improvement is to use an 8 bit address giving 256 locations for instructions or data.
-However this also means that programming the CPU with DIP switches is tedious and error prone.
-
-This can be overcome by using a ROM to store the program.
+However this also means that programming the CPU with DIP switches can be tedious and error prone.
+This can be overcome by using a ROM to store the program instead.
 
 Adding more ROMS in the control unit also makes the CPU more powerful as there are more control lines.
 
 For my CPU I used:
-4 ROMS for the control signals
+
+4 ROMS for the control signals (28C64)
 4 general purpose data registers
 A stack pointer
 2 74161 counters for the PC
 2 74382 chips for the ALU
+
 Having write only registers for the inputs to the ALU (called X&Y)
 A mux from the bus to the X & Y registers that reverse the bits (more on this later)
 A mux as a zero input to the ALU Y input (used for inc and dec instructions)
@@ -31,4 +32,4 @@ Using a nano as an input/output
 
 Tips:
 Use the best quality breadboards you can afford. I started with Elegoo breadboards and regretted it.
-Ended up buying the ones Ben Eater recommended and had little problems from then on
+I ended up buying BPS BB830 breadboards, the ones Ben Eater recommended, and had little problems from then on.

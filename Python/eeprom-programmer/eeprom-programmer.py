@@ -27,8 +27,8 @@ S2 = uint32(1) << 18  # ALU setting 2
 CY = uint32(1) << 19  # ALU Carry in
 Y0 = uint32(1) << 20  # ALU Y zero
 RV = uint32(1) << 21  # ALU Reverse bits into X&Y
-FL = uint32(1) << 21  # ALU Load flags reg from ALU
-PR = uint32(1) << 23  # Use Program memory
+FL = uint32(1) << 22  # ALU Load flags reg from ALU
+HL = uint32(1) << 23  # Halt CPU (not needed?)
 
 CI = uint32(1) << 24  # C reg in
 CO = uint32(1) << 25  # C reg out
@@ -37,7 +37,7 @@ DO = uint32(1) << 27  # D reg out
 SI = uint32(1) << 28  # Stack Pointer in
 SO = uint32(1) << 29  # Stack Pointer out
 IO = uint32(1) << 30  # Input reg out
-HL = uint32(1) << 31  # Halt CPU (not needed?)
+PR = uint32(1) << 31  # Use Program memory
 
 MO = RO        # Use RAM for operands
 # MO = PR | RO  # Use program memory for operands
