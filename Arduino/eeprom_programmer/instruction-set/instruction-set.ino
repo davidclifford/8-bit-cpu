@@ -1,12 +1,12 @@
-#define ROM 2
+#define ROM 0
 
 //#define CLEARROM 1
 //#define FILLNOP 1
-#define TESTINSTR 1
-//#define RAW
+//#define TESTINSTR 1
+#define RAW
 //#define CONTENTS 1
 //#define INSTRUCTIONS 1
-#define CONTROL 1
+//#define CONTROL 1
 
 
 #define SHIFT_DATA 2

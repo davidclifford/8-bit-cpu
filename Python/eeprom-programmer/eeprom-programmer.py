@@ -261,26 +261,60 @@ def read(ser):
 
 
 def send_command(command, ser, sio):
-    while True:
-        com = bytes(command + '\n', 'utf-8')
-        ser.write(com)
-        ret_com = sio.readline(256)
-        if ret_com == command+'\n':
-            return
+    # while True:
+    #     com = bytes(command + '\n', 'utf-8')
+    #     ser.write(com)
+    #     ret_com = sio.readline(256)
+    #     if ret_com == command+'\n':
+    #         return
+    com = bytes(command + '\n', 'utf-8')
+    ser.write(com)
 
 
 def setup_serial():
     with serial.Serial('COM7', 57600, timeout=1) as ser:
+        print(ser)
         sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
-        send_command('G', ser, sio)
-        print(sio.readline(256))
+        go = False
+        while go is not True:
+            time.sleep(1)
+            send_command('G', ser, sio)
+            message = sio.readline(256)
+            if message == 'GO\n':
+                go = True
 
-        send_command('S', ser, sio)
-        message = sio.readline(256)
-        print('>', message)
+        for i in range(256):
+            address = "S{:04X}".format(i*16)
+            print(address)
+            send_command(address, ser, sio)
+            send_command('0', ser, sio)
+            send_command('1', ser, sio)
+            send_command('2', ser, sio)
+            send_command('3', ser, sio)
+            send_command('4', ser, sio)
+            send_command('5', ser, sio)
+            send_command('6', ser, sio)
+            send_command('7', ser, sio)
+            send_command('8', ser, sio)
+            send_command('9', ser, sio)
+            send_command('A', ser, sio)
+            send_command('B', ser, sio)
+            send_command('C', ser, sio)
+            send_command('D', ser, sio)
+            send_command('E', ser, sio)
+            send_command('F', ser, sio)
+            send_command('.', ser, sio)
 
-        send_command('R', ser, sio)
-        print(sio.readline(256))
+            address = "R{:04X}".format(i*16)
+            send_command(address, ser, sio)
+            cont = True
+            while cont:
+                message = sio.readline(256)
+                if len(message) > 0:
+                    print('>', message.replace('\n', ''))
+                else:
+                    cont = False
+
 
 def main():
 
