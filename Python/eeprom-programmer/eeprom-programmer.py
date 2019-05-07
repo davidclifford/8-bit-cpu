@@ -269,44 +269,36 @@ def send_command(command, ser, sio):
     #         return
     com = bytes(command + '\n', 'utf-8')
     ser.write(com)
+    time.sleep(0.03)
 
 
 def setup_serial():
-    with serial.Serial('COM7', 57600, timeout=1) as ser:
+    with serial.Serial('COM7', 115200, timeout=1) as ser:
         print(ser)
         sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
         go = False
         while go is not True:
-            time.sleep(1)
+            time.sleep(0.1)
             send_command('G', ser, sio)
-            message = sio.readline(256)
+            message = sio.read(256)
+            print('MESSAGE ', message)
             if message == 'GO\n':
                 go = True
 
-        for i in range(256):
-            address = "S{:04X}".format(i*16)
+        for i in range(1):
+            address = "S{:04X}".format(i*256)
             print(address)
+            time.sleep(0.2)
             send_command(address, ser, sio)
-            send_command('0', ser, sio)
-            send_command('1', ser, sio)
-            send_command('2', ser, sio)
-            send_command('3', ser, sio)
-            send_command('4', ser, sio)
-            send_command('5', ser, sio)
-            send_command('6', ser, sio)
-            send_command('7', ser, sio)
-            send_command('8', ser, sio)
-            send_command('9', ser, sio)
-            send_command('A', ser, sio)
-            send_command('B', ser, sio)
-            send_command('C', ser, sio)
-            send_command('D', ser, sio)
-            send_command('E', ser, sio)
-            send_command('F', ser, sio)
+            for b in range(8192):
+                bite = "{:02X}".format(0xFF-(b & 0xFF))
+                send_command(bite, ser, sio)
             send_command('.', ser, sio)
 
-            address = "R{:04X}".format(i*16)
+        for i in range(256):
+            address = "R{:04X}".format(i*32)
             send_command(address, ser, sio)
+            send_command('', ser, sio)
             cont = True
             while cont:
                 message = sio.readline(256)

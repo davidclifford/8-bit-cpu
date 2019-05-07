@@ -53,7 +53,7 @@ void setup() {
   pinMode(SHIFT_LATCH, OUTPUT);
   digitalWrite(WRITE_EN, HIGH);
   pinMode(WRITE_EN, OUTPUT);
-  Serial.begin(57600);
+  Serial.begin(115200);
 }
 
 // Read a line of data from the serial connection.
@@ -98,35 +98,29 @@ void printContents(uint32_t start, uint32_t leng) {
             data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
 
     Serial.println(buf);
+    Serial.flush();
   }
 }
   
 void read_rom(char *operand) {
   uint32_t address = convertHex(operand);
-  Serial.print("Reading from address ");
-  Serial.println(address, HEX);
-  printContents(address, 16);
+  printContents(address, 32);
 }
 
 void save_rom(char* operand) {
   char line[256];
   uint32_t address = convertHex(operand);
-  Serial.print("Saving to address ");
-  Serial.println(address, HEX);
   uint32_t count = 0;
   for(;;count++) {
     readLine(line, sizeof(line));
-    Serial.println(line);
     if (line[0] == '.') break;
     byte data = (byte)convertHex(line);
-    writeEEPROM(address+count, data);
-    Serial.print(data,HEX);
-    Serial.print(" written to ");
-    Serial.println(address+count,HEX);
+    byte check;
+    do {
+      writeEEPROM(address+count, data);
+      check = readEEPROM(address+count);
+    } while(data!=check);
   }
-  Serial.print(count-1, HEX);
-  Serial.print(" bytes writen to address ");
-  Serial.print(address);
 }
 
 uint32_t convertHex(char *text) {
@@ -135,7 +129,7 @@ uint32_t convertHex(char *text) {
     char c = text[i];
     byte n = c - '0';
     if (c>='A' && c<='F') n = c - 'A' + 10; 
-    if (c>='a' && c<='F') n = c - 'a' + 10; 
+    if (c>='a' && c<='f') n = c - 'a' + 10; 
     num = (num<<4)|n;
   }
   return num;
@@ -151,6 +145,7 @@ boolean do_command(char command[]) {
     return true;
   } else if (comm == 'G') {
     Serial.println("GO");
+    Serial.flush();
   }
   return false;
 }
@@ -164,7 +159,6 @@ void loop() {
     boolean halt = false;
 
     input = readLine(line, sizeof(line));
-    Serial.println(input);
     halt = do_command(line);
     if (halt) {
       Serial.print("Halting\n");
