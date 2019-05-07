@@ -109,7 +109,7 @@ JPR = 0xFC
 
 # print("{:08X}".format(IL|PO|PC|MI|HL))
 
-instr = [[[0 for i in range(4)] for t in range(8)] for f in range(256)]
+instr: uint32 = [[[0 for i in range(4)] for t in range(8)] for f in range(256)]
 
 
 def flip_bits(instruction: uint32) -> uint32:
@@ -244,6 +244,37 @@ def dump_all():
                 print("{:08X}".format(flipped))
 
 
+def save_all_4_bin():
+    print("Saving as 4 roms")
+    rom0 = bytearray()
+    rom1 = bytearray()
+    rom2 = bytearray()
+    rom3 = bytearray()
+    for i in range(256):
+        for t in range(8):
+            for f in range(4):
+                rom0.append(flip_bits(instr[i][t][f]) & 0xFF)
+                rom1.append((flip_bits(instr[i][t][f]) >> 8) & 0xFF)
+                rom2.append((flip_bits(instr[i][t][f]) >> 16) & 0xFF)
+                rom3.append((flip_bits(instr[i][t][f]) >> 24) & 0xFF)
+
+    rom0bin = open("rom0.bin", "wb")
+    rom1bin = open("rom1.bin", "wb")
+    rom2bin = open("rom2.bin", "wb")
+    rom3bin = open("rom3.bin", "wb")
+
+    rom0bin.write(rom0)
+    rom1bin.write(rom1)
+    rom2bin.write(rom2)
+    rom3bin.write(rom3)
+
+    rom0bin.close()
+    rom1bin.close()
+    rom2bin.close()
+    rom3bin.close()
+    print("Finished")
+    
+
 def init_all_nop():
     for i in range(256):
         for f in range(4):
@@ -261,12 +292,6 @@ def read(ser):
 
 
 def send_command(command, ser, sio):
-    # while True:
-    #     com = bytes(command + '\n', 'utf-8')
-    #     ser.write(com)
-    #     ret_com = sio.readline(256)
-    #     if ret_com == command+'\n':
-    #         return
     com = bytes(command + '\n', 'utf-8')
     ser.write(com)
     time.sleep(0.03)
@@ -310,15 +335,16 @@ def setup_serial():
 
 def main():
 
-    setup_serial()
+    # setup_serial()
 
-    # init_all_nop()
-    # binary_instructions()
-    # unary_instructions()
-    # other_instructions()
-    #
-    # print_all()
+    init_all_nop()
+    binary_instructions()
+    unary_instructions()
+    other_instructions()
+
+    print_all()
     # dump_all()
+    save_all_4_bin()
 
 
 main()
