@@ -136,7 +136,7 @@ def instruction_c_f(address, carry, flags, *micro):
     for m in micro:
         t += 1
         instr[address][t][f] = m
-    instr[address][t][0] = instr[address][t][0] | TR
+    instr[address][t][f] = instr[address][t][f] | TR
     for bl in range(t+1, 8):
         instr[address][bl][f] = TR
 
@@ -187,19 +187,20 @@ def binary_instructions():
 def unary_instructions():
     for rr in range(4):
         instruction(NOT | rr, _r(rr) | XI, ALU_SET | EO | YI, ALU_XOR | EO | _w(rr) | FL)
-        instruction(NEG | rr, _r(rr) | XI, Y0 | ALU_BSUB | EO | _w(rr) | FL)
+        instruction(NEG | rr, _r(rr) | XI, Y0 | CY | ALU_BSUB | EO | _w(rr) | FL)
         instruction(INC | rr, _r(rr) | XI, Y0 | CY | ALU_ADD | EO | _w(rr) | FL)
         instruction(DEC | rr, _r(rr) | XI, Y0 | ALU_SUB | EO | _w(rr) | FL)
         instruction(IN | rr, IO | _w(rr))
         instruction(OUT | rr, _r(rr) | OI)
         instruction(LSL | rr, _r(rr) | XI | YI, ALU_ADD | EO | _w(rr) | FL)
-        instruction(LSR | rr, _r(rr) | RV | XI | YI, ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD | _w(rr))
+        instruction(LSR | rr, _r(rr) | RV | XI | YI, ALU_ADD | EO | _w(rr) | FL,
+                    _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
         instruction_c(ROL | rr, False, _r(rr) | XI | YI, ALU_ADD | FL, ALU_ADD | EO | _w(rr) | FL)
         instruction_c(ROL | rr, True, _r(rr) | XI | YI, ALU_ADD | FL, CY | ALU_ADD | EO | _w(rr) | FL)
         instruction_c(ROR | rr, False, _r(rr) | RV | XI | YI, ALU_ADD | FL,
-                      ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD, _w(rr))
-        instruction_c(ROR | rr, True, _r(rr) | RV | XI | YI, ALU_ADD | FL,
-                      CY | ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD | EO | _w(rr))
+                      ALU_ADD | EO | _w(rr) | FL, _r(rr) | XI, Y0 | ALU_ADD | EO | _w(rr))
+        instruction_c(ROR | rr, True, _r(rr) | RV | XI | YI, CY | ALU_ADD | FL,
+                      CY | ALU_ADD | EO | _w(rr) | FL, _r(rr) | XI, Y0 | ALU_ADD | EO | _w(rr))
 
         instruction(CALR | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, _r(rr) | JP)
         instruction(PUSH | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, _r(rr) | RI)
@@ -244,6 +245,18 @@ def dump_all():
                 print("{:08X}".format(flipped))
 
 
+def print_control_all():
+    for i in range(256):
+        for f in range(4):
+            line = "{:02X}".format(i) + ' ' + ('cf', 'cF', 'Cf', 'CF')[f] + ' '
+            for t in range(8):
+                # flipped = flip_bits(instr[i][t][f])
+                # print("{:08X}".format(flipped))
+                line = line + get_control(instr[i][t][f]) + ','
+            print(line)
+        print()
+
+        
 def save_all_4_bin():
     print("Saving as 4 roms")
     rom0 = bytearray()
@@ -273,7 +286,48 @@ def save_all_4_bin():
     rom2bin.close()
     rom3bin.close()
     print("Finished")
-    
+
+
+def get_control(part: uint32):
+    c = ""
+    if part & IL: c += "IL|"
+    if part & RO: c += "RO|"
+    if part & XI: c += "XI|"
+    if part & YI: c += "YI|"
+    if part & EO: c += "EO|"
+    if part & MI: c += "MI|"
+    if part & PC: c += "PC|"
+    if part & PO: c += "PO|"
+
+    if part & AI: c += "AI|"
+    if part & AO: c += "AO|"
+    if part & BI: c += "BI|"
+    if part & BO: c += "BO|"
+    if part & RI: c += "RI|"
+    if part & JP: c += "JP|"
+    if part & OI: c += "OI|"
+    if part & TR: c += "TR|"
+
+    if part & S0: c += "S0|"
+    if part & S1: c += "S1|"
+    if part & S2: c += "S2|"
+    if part & CY: c += "CY|"
+    if part & Y0: c += "Y0|"
+    if part & RV: c += "RV|"
+    if part & FL: c += "FL|"
+    if part & HL: c += "HL|"
+
+    if part & CI: c += "CI|"
+    if part & CO: c += "CO|"
+    if part & DI: c += "DI|"
+    if part & DO: c += "DO|"
+    if part & SI: c += "SI|"
+    if part & SO: c += "SO|"
+    if part & IO: c += "IO|"
+    if part & MO: c += "MO|"
+
+    return c
+
 
 def init_all_nop():
     for i in range(256):
@@ -344,6 +398,7 @@ def main():
 
     # print_all()
     # dump_all()
+    print_control_all()
     save_all_4_bin()
 
 
