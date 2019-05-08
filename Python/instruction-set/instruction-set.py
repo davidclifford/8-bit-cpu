@@ -118,12 +118,12 @@ def flip_bits(instruction: uint32) -> uint32:
 
 
 def _r(ss):
-    r = (AI, BI, CI, DI)[ss]
+    r = (AO, BO, CO, DO)[ss]
     return r
 
 
 def _w(dd):
-    r = (AO, BO, CO, DO)[dd]
+    r = (AI, BI, CI, DI)[dd]
     return r
 
 
@@ -189,7 +189,7 @@ def unary_instructions():
         instruction(NOT | rr, _r(rr) | XI, ALU_SET | EO | YI, ALU_XOR | EO | _w(rr) | FL)
         instruction(NEG | rr, _r(rr) | XI, Y0 | ALU_BSUB | EO | _w(rr) | FL)
         instruction(INC | rr, _r(rr) | XI, Y0 | CY | ALU_ADD | EO | _w(rr) | FL)
-        instruction(DEC | rr, _r(rr) | XI,  Y0 | ALU_SUB | EO | _w(rr) | FL)
+        instruction(DEC | rr, _r(rr) | XI, Y0 | ALU_SUB | EO | _w(rr) | FL)
         instruction(IN | rr, IO | _w(rr))
         instruction(OUT | rr, _r(rr) | OI)
         instruction(LSL | rr, _r(rr) | XI | YI, ALU_ADD | EO | _w(rr) | FL)
@@ -198,7 +198,7 @@ def unary_instructions():
         instruction_c(ROL | rr, True, _r(rr) | XI | YI, ALU_ADD | FL, CY | ALU_ADD | EO | _w(rr) | FL)
         instruction_c(ROR | rr, False, _r(rr) | RV | XI | YI, ALU_ADD | FL,
                       ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD, _w(rr))
-        instruction_c(ROR | rr,  True, _r(rr) | RV | XI | YI, ALU_ADD | FL,
+        instruction_c(ROR | rr, True, _r(rr) | RV | XI | YI, ALU_ADD | FL,
                       CY | ALU_ADD | EO | RV | XI | FL, Y0 | ALU_ADD | EO | _w(rr))
 
         instruction(CALR | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, _r(rr) | JP)
@@ -342,7 +342,7 @@ def main():
     unary_instructions()
     other_instructions()
 
-    print_all()
+    # print_all()
     # dump_all()
     save_all_4_bin()
 
