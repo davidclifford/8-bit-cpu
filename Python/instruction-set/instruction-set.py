@@ -210,17 +210,24 @@ def unary_instructions():
 
 def other_instructions():
     # nop hlt
-    instruction(NOP,)
+    instruction(NOP, TR)
     instruction(HLT, HL)
     # jump
     instruction(JMP, OPERAND, MO | JP)
     instruction_c(JPC, True, OPERAND, MO | JP)
+    instruction_c(JPC, False, PC)
     instruction_c_f(JPZ, True, True, OPERAND, MO | JP)
     instruction_c_f(JPZ, False, True, OPERAND, MO | JP)
+    instruction_c_f(JPZ, True, False, PC)
+    instruction_c_f(JPZ, False, False, PC)
     instruction_c_f(JPN, True, True, OPERAND, MO | JP)
     instruction_c_f(JPN, False, True, OPERAND, MO | JP)
+    instruction_c_f(JPN, True, False, PC)
+    instruction_c_f(JPN, False, False, PC)
     instruction_c_f(JPV, True, True, OPERAND, MO | JP)
     instruction_c_f(JPV, False, True, OPERAND, MO | JP)
+    instruction_c_f(JPV, True, False, PC)
+    instruction_c_f(JPV, False, False, PC)
     # stack based
     instruction(SP, OPERAND, MO | SI)
     instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, OPERAND, MO | JP)
@@ -332,7 +339,8 @@ def get_control(part: uint32):
 def init_all_nop():
     for i in range(256):
         for f in range(4):
-            instr[i][0][f] = FETCH | TR
+            instr[i][0][f] = FETCH
+            instr[i][1][f] = TR
 
 
 def read(ser):
