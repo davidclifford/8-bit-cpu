@@ -1,11 +1,6 @@
-ALU_CLR = 0
-ALU_BSUB = 1
-ALU_SUB = 2
-ALU_ADD = 3
-ALU_XOR = 4
-ALU_OR = 5
-ALU_AND = 6
-ALU_SET = 7
+#################
+# THE ASSEMBLER #
+#################
 
 NOP = 0x00
 SP = 0x01
@@ -58,16 +53,305 @@ JPC = 0xF8
 HLT = 0xFB
 JPR = 0xFC
 
+address = 0
+labels = dict()
+todo_labels = dict()
+start = None
 
-def main():
+A = '_A_'
+B = '_B_'
+C = '_C_'
+D = '_D_'
 
-    begin()
-    org(0x0000)
-    label('loop1')
-    ld(A,1)
-    label('loop2')
-    out(A)
-    lsl(A)
-    jpc('loop1')
-    jmp('loop2')
-    end()
+regs = [A, B, C, D]
+
+program = [None for x in range(256)]
+
+
+def rr(reg):
+    code = 0
+    if reg == A:
+        code = 0
+    elif reg == B:
+        code = 1
+    elif reg == C:
+        code = 2
+    elif reg == D:
+        code = 3
+    return code
+
+
+def ddss(reg1, reg2):
+    return rr(reg1)*4 + rr(reg2)
+
+
+def begin():
+    org(0)
+
+
+def org(_address):
+    global address, start
+    address = _address
+    if start is None or _address < start:
+        start = _address
+
+
+def label(_label):
+    global address, program
+    labels[_label] = address
+    if _label in todo_labels:
+        addr_list = todo_labels[_label]
+        for addr in addr_list:
+            program[addr] = address
+        todo_labels.pop(_label)
+
+
+def get_label(addr):
+    global program, address, labels, todo_labels
+    if addr in labels:
+        return labels[addr]
+    else:
+        if addr not in todo_labels:
+            todo_labels[addr] = []
+        todo_labels[addr].append(address)
+    return 0
+
+
+def var(_label, num):
+    label(_label)
+    single(num)
+
+
+def equ(_label, num):
+    global labels
+    labels[_label] = num
+
+
+def binary(instr, reg, op):
+    global address, program
+    num = op
+    if isinstance(op, str) and op in regs:
+        program[address] = instr + ddss(reg, op)
+        address += 1
+        return
+    program[address] = instr + ddss(reg, reg)
+    address += 1
+    if isinstance(op, str):
+        num = get_label(op)
+    program[address] = num
+    address += 1
+
+
+def unary(instr, reg):
+    global address, program
+    if isinstance(reg, str):
+        program[address] = instr + rr(reg)
+    else:
+        program[address] = instr + reg
+    address += 1
+
+
+def single(instr):
+    global address, program
+    program[address] = instr
+    address += 1
+
+
+def jump(instr, addr):
+    global address, program
+    program[address] = instr
+    address += 1
+    if isinstance(addr, str):
+        program[address] = get_label(addr)
+    else:
+        program[address] = addr
+    address += 1
+
+
+################
+# INSTRUCTIONS #
+################
+
+def hlt():
+    single(HLT)
+
+
+def sp(op):
+    jump(SP, op)
+
+
+def call(op):
+    jump(CALL, op)
+
+
+def ret():
+    single(RET)
+
+
+def calr(reg):
+    unary(CALR, reg)
+
+
+def push(reg):
+    unary(PUSH, reg)
+
+
+def pop(reg):
+    unary(POP, reg)
+
+
+def mov(reg, op):
+    binary(MOV, reg, op)
+
+
+def ld(reg, op):
+    binary(LD, reg, op)
+
+
+def st(reg, op):
+    binary(ST, reg, op)
+
+
+def add(reg, op):
+    binary(ADD, reg, op)
+
+
+def adc(reg, op):
+    binary(ADC, reg, op)
+
+
+def sub(reg, op):
+    binary(SUB, reg, op)
+
+
+def sbb(reg, op):
+    binary(SBB, reg, op)
+
+
+def and_(reg, op):
+    binary(AND, reg, op)
+
+
+def or_(reg, op):
+    binary(OR, reg, op)
+
+
+def xor(reg, op):
+    binary(XOR, reg, op)
+
+
+def cmp(reg, op):
+    binary(CMP, reg, op)
+
+
+def in_(reg):
+    unary(IN, reg)
+
+
+def out(reg):
+    unary(OUT, reg)
+
+
+def not_(reg):
+    unary(NOT, reg)
+
+
+def dec(reg):
+    unary(DEC, reg)
+
+
+def lsr(reg):
+    unary(LSR, reg)
+
+
+def lsl(reg):
+    unary(LSL, reg)
+
+
+def rol(reg):
+    unary(ROL, reg)
+
+
+def ror(reg):
+    unary(ROR, reg)
+
+
+def jmp(addr):
+    jump(JMP, addr)
+
+
+def jpc(addr):
+    jump(JPC, addr)
+
+
+def jpn(addr):
+    jump(JPN, addr)
+
+
+def jpv(addr):
+    jump(JPV, addr)
+
+
+def jpz(addr):
+    jump(JPZ, addr)
+
+
+def jpz(reg):
+    unary(JPR, reg)
+
+
+def nop():
+    single(NOP)
+
+
+def end():
+    global program, start, address
+    skip = True
+    for i in range(start, address):
+        line = program[i]
+        if line is not None:
+            print("{:02X} {:02X}".format(i, line))
+            skip = True
+        elif skip:
+            print('**')
+            skip = False
+
+###############################
+# PUT YOUR ASSEMBLY CODE HERE #
+###############################
+
+
+begin()
+
+equ('X', 5)
+
+org(0x0)
+
+nop()
+
+label('start')
+mov(A, 0)
+mov(B, 1)
+st(A, 'a')
+st(B, 'b')
+
+label('loop')
+ld(A, 'a')
+ld(B, 'b')
+
+out(A)
+
+st(B, 'a')
+add(B, A)
+st(B, 'b')
+
+jpc('start')
+jmp('loop')
+
+org(0x20)
+var('a', 0)
+var('b', 1)
+
+end()
+
+
