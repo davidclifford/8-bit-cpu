@@ -157,7 +157,7 @@ def binary_instructions():
             if dd == ss:
                 instruction(MOV | dd << 2 | ss, OPERAND, MO | _w(dd))
                 instruction(LD | dd << 2 | ss, OPERAND, MO | MI, MO | _w(dd))
-                instruction(ST | dd << 2 | ss, OPERAND, RI | _r(dd))
+                instruction(ST | dd << 2 | ss, OPERAND, MO | MI, RI | _r(dd))
                 instruction(ADD | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
                 instruction_c(ADC | dd << 2 | ss, False, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
                 instruction_c(ADC | dd << 2 | ss, True, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | CY | EO | _w(dd) | FL)
@@ -198,9 +198,9 @@ def unary_instructions():
         instruction_c(ROL | rr, False, _r(rr) | XI | YI, ALU_ADD | FL, ALU_ADD | EO | _w(rr) | FL)
         instruction_c(ROL | rr, True, _r(rr) | XI | YI, ALU_ADD | FL, CY | ALU_ADD | EO | _w(rr) | FL)
         instruction_c(ROR | rr, False, _r(rr) | RV | XI | YI, ALU_ADD | FL,
-                      ALU_ADD | EO | _w(rr) | FL, _r(rr) | XI, Y0 | ALU_ADD | EO | _w(rr))
+                      ALU_ADD | EO | _w(rr) | FL, _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
         instruction_c(ROR | rr, True, _r(rr) | RV | XI | YI, CY | ALU_ADD | FL,
-                      CY | ALU_ADD | EO | _w(rr) | FL, _r(rr) | XI, Y0 | ALU_ADD | EO | _w(rr))
+                      CY | ALU_ADD | EO | _w(rr) | FL, _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
 
         instruction(CALR | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, _r(rr) | JP)
         instruction(PUSH | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, _r(rr) | RI)

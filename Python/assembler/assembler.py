@@ -256,6 +256,10 @@ def not_(reg):
     unary(NOT, reg)
 
 
+def inc(reg):
+    unary(INC, reg)
+
+
 def dec(reg):
     unary(DEC, reg)
 
@@ -296,7 +300,7 @@ def jpz(addr):
     jump(JPZ, addr)
 
 
-def jpz(reg):
+def jpr(reg):
     unary(JPR, reg)
 
 
@@ -323,35 +327,13 @@ def end():
 
 begin()
 
-equ('X', 5)
-
-org(0x0)
-
-nop()
-
-label('start')
-mov(A, 0)
-mov(B, 1)
-st(A, 'a')
-st(B, 'b')
-
+label('reset')
+mov(A, 0x80)
 label('loop')
-ld(A, 'a')
-ld(B, 'b')
-
 out(A)
-
-st(B, 'a')
-add(B, A)
-st(B, 'b')
-
-jpc('start')
+lsr(A)
+jpz('reset')
 jmp('loop')
-
-org(0x20)
-var('a', 0)
-var('b', 1)
-
 end()
 
 
