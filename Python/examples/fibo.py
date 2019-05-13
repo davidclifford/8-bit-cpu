@@ -8,11 +8,10 @@ mov(A, 0)
 mov(B, 1)
 
 label('next')
-out(A)
 st(B, 'temp')
 add(B, A)
 ld(A, 'temp')
-
+out(A)
 jpc('start')
 jmp('next')
 
