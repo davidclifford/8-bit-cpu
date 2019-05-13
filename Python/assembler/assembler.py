@@ -117,9 +117,13 @@ def get_label(addr):
     return 0
 
 
-def var(_label, num):
+def var(_label, *num):
     label(_label)
-    single(num)
+    if len(num) == 0:
+        single(0)
+        return
+    for n in num:
+        single(n)
 
 
 def equ(_label, num):
@@ -319,21 +323,4 @@ def end():
         elif skip:
             print('**')
             skip = False
-
-###############################
-# PUT YOUR ASSEMBLY CODE HERE #
-###############################
-
-
-begin()
-
-label('reset')
-mov(A, 0x80)
-label('loop')
-out(A)
-lsr(A)
-jpz('reset')
-jmp('loop')
-end()
-
 
