@@ -172,6 +172,16 @@ def jump(instr, addr):
     address += 1
 
 
+def save_bin(filename):
+    print("Saving {:s} as binary file".format(filename))
+    rom0 = bytearray()
+    for i in range(256):
+        rom0.append(program[i] or 0)
+    rombin = open(filename, "wb")
+    rombin.write(rom0)
+    rombin.close()
+    print("Finished")
+
 ################
 # INSTRUCTIONS #
 ################
@@ -312,7 +322,7 @@ def nop():
     single(NOP)
 
 
-def end():
+def end(filename):
     global program, start, address
     skip = True
     for i in range(start, address):
@@ -324,3 +334,4 @@ def end():
             print('**')
             skip = False
 
+    save_bin(filename+'.bin')

@@ -1,26 +1,26 @@
-from Python.assembler.assembler import *
+from Python.assembler.asm import *
+if __name__ == '__main__':
+    begin()
 
-begin()
+    label('start')
 
-label('start')
+    mov(B, 'dave')
+    mov(C, 4)
+    mov(D, 0)
 
-mov(B, 'dave')
-mov(C, 4)
-mov(D, 0)
+    label('loop')
 
-label('loop')
+    ld(A, B)
+    out(A)
+    inc(B)
+    add(D, 0x10)
+    dec(C)
 
-ld(A, B)
-out(A)
-inc(B)
-add(D, 0x10)
-dec(C)
+    jpz('start')
 
-jpz('start')
+    jmp('loop')
 
-jmp('loop')
+    org(0x20)
+    var('dave', 4, 1, 22, 5)
 
-org(0x20)
-var('dave', 4, 1, 22, 5)
-
-end()
+    end()
