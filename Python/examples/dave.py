@@ -23,4 +23,4 @@ if __name__ == '__main__':
     org(0x20)
     var('dave', 4, 1, 22, 5)
 
-    end()
+    end('dave')

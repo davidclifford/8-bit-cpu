@@ -1,5 +1,16 @@
 from Python.assembler.asm import *
 if __name__ == '__main__':
+
+    # while True:
+    #     a = 1
+    #     b = 0
+    #     while True:
+    #         a = a + b
+    #         if a > 255:
+    #             break
+    #         print(a)
+    #         b = a - b
+
     begin()
 
     label('start')
@@ -8,14 +19,12 @@ if __name__ == '__main__':
     mov(B, 1)
 
     label('next')
-    add(B, A)
-    mov(A, B)
-    sub(A, B)
-    out(A)
+    add(A, B)
     jpc('start')
+    out(A)
+    sub(B, A)
     jmp('next')
 
-    org(0x10)
-    var('temp')
-
     end('fibo2')
+
+
