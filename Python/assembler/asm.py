@@ -86,6 +86,7 @@ def ddss(reg1, reg2):
 
 
 def begin():
+    print()
     org(0)
 
 
@@ -173,14 +174,13 @@ def jump(instr, addr):
 
 
 def save_bin(filename):
-    print("Saving {:s} as binary file".format(filename))
+    print("\nSaving {:s} as binary file".format(filename))
     rom0 = bytearray()
     for i in range(256):
         rom0.append(program[i] or 0)
     rombin = open(filename, "wb")
     rombin.write(rom0)
     rombin.close()
-    print("Finished")
 
 ################
 # INSTRUCTIONS #
