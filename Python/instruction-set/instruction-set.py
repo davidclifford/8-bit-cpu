@@ -37,11 +37,7 @@ DO = uint32(1) << 27  # D reg out
 SI = uint32(1) << 28  # Stack Pointer in
 SO = uint32(1) << 29  # Stack Pointer out
 IO = uint32(1) << 30  # Input reg out
-PR = uint32(1) << 31  # Use Program memory
-
-MO = RO        # Use RAM for operands
-# MO = PR | RO  # Use program memory for operands
-# MO = PR       # Use ROM for operands
+MO = uint32(1) << 31  # ROM out
 
 OPERAND = PO | MI | PC
 FETCH = OPERAND | IL
@@ -84,8 +80,8 @@ DEC = 0xCC
 IN = 0xD0
 OUT = 0xD4
 
-XXrr = 0xD8
-YYrr = 0xDC
+LDM = 0xD8  # Load from ROM memory into register rr e.g. LDM rr,(#addr)
+LDA = 0xDC  # Load A reg from register e.g. LDA (rr)
 
 LSL = 0xE0
 LSR = 0xE4
@@ -113,7 +109,7 @@ instr: uint32 = [[[0 for i in range(4)] for t in range(8)] for f in range(256)]
 
 
 def flip_bits(instruction: uint32) -> uint32:
-    instruction ^= (IL|RO|MO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|IO)
+    instruction ^= (IL|RO|XI|YI|EO|MI|PO| AI|AO|BI|BO|JP|OI|TR| FL| CI|CO|DI|DO|SI|SO|IO|MO)
     return instruction
 
 
@@ -156,7 +152,7 @@ def binary_instructions():
         for ss in range(4):
             if dd == ss:
                 instruction(MOV | dd << 2 | ss, OPERAND, MO | _w(dd))
-                instruction(LD | dd << 2 | ss, OPERAND, MO | MI, MO | _w(dd))
+                instruction(LD | dd << 2 | ss, OPERAND, MO | MI, RO | _w(dd))
                 instruction(ST | dd << 2 | ss, OPERAND, MO | MI, RI | _r(dd))
                 instruction(ADD | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
                 instruction_c(ADC | dd << 2 | ss, False, OPERAND, MO | YI, _r(dd) | XI, ALU_ADD | EO | _w(dd) | FL)
@@ -206,6 +202,8 @@ def unary_instructions():
         instruction(PUSH | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, _r(rr) | RI)
         instruction(POP | rr, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | _w(rr))
         instruction(JPR | rr, _r(rr) | JP)
+        instruction(LDM | rr, OPERAND, MO | MI, MO | _w(rr))
+        instruction(LDA | rr, _r(rr) | MI, MO | AI)
 
 
 def other_instructions():

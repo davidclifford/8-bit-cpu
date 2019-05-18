@@ -3,7 +3,7 @@ if __name__ == '__main__':
     begin()
 
     label('start')
-
+    nop()
     mov(A, 0)
     mov(B, 1)
 
