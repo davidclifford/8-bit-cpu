@@ -27,8 +27,8 @@ if __name__ == '__main__':
     jmp('start')
 
     org(0x20)
-    var('name', 10, 5, 14, 28)
+    var('name', 20, 15, 14, 25)
 
-    end(os.path.dirname(__file__)+'/jen')
+    end(os.path.dirname(__file__)+'/tony')
 
 
