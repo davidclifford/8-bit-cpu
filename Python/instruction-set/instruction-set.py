@@ -81,7 +81,7 @@ IN = 0xD0
 OUT = 0xD4
 
 LDM = 0xD8  # Load from ROM memory into register rr e.g. LDM rr,(#addr)
-LDA = 0xDC  # Load A reg from register e.g. LDA (rr)
+LDA = 0xDC  # Load A reg from ROM memory addressed by a register e.g. LDA (rr)
 
 LSL = 0xE0
 LSR = 0xE4

@@ -1,6 +1,7 @@
 #################
 # THE ASSEMBLER #
 #################
+import os
 
 NOP = 0x00
 SP = 0x01
@@ -31,8 +32,8 @@ DEC = 0xCC
 IN = 0xD0
 OUT = 0xD4
 
-XXrr = 0xD8
-YYrr = 0xDC
+LDM = 0xD8
+LDA = 0xDC
 
 LSL = 0xE0
 LSR = 0xE4
@@ -182,6 +183,7 @@ def save_bin(filename):
     rombin.write(rom0)
     rombin.close()
 
+
 ################
 # INSTRUCTIONS #
 ################
@@ -320,6 +322,14 @@ def jpr(reg):
 
 def nop():
     single(NOP)
+
+
+def ldm(reg):
+    jump(LDM, reg)
+
+
+def lda(reg):
+    unary(LDA, reg)
 
 
 def end(filename):
