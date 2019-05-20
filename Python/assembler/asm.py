@@ -58,6 +58,7 @@ address = 0
 labels = dict()
 todo_labels = dict()
 start = None
+last = 0
 
 A = '_A_'
 B = '_B_'
@@ -91,6 +92,13 @@ def begin():
     org(0)
 
 
+def inc_addr():
+    global address, last
+    address += 1
+    if address > last:
+        last = address
+
+
 def org(_address):
     global address, start
     address = _address
@@ -119,13 +127,10 @@ def get_label(addr):
     return 0
 
 
-def var(_label, *num):
+def var(_label):
+    global address
     label(_label)
-    if len(num) == 0:
-        single(0)
-        return
-    for n in num:
-        single(n)
+    inc_addr()
 
 
 def equ(_label, num):
@@ -138,14 +143,14 @@ def binary(instr, reg, op):
     num = op
     if isinstance(op, str) and op in regs:
         program[address] = instr + ddss(reg, op)
-        address += 1
+        inc_addr()
         return
     program[address] = instr + ddss(reg, reg)
-    address += 1
+    inc_addr()
     if isinstance(op, str):
         num = get_label(op)
     program[address] = num
-    address += 1
+    inc_addr()
 
 
 def unary(instr, reg):
@@ -154,24 +159,24 @@ def unary(instr, reg):
         program[address] = instr + rr(reg)
     else:
         program[address] = instr + reg
-    address += 1
+    inc_addr()
 
 
 def single(instr):
     global address, program
     program[address] = instr
-    address += 1
+    inc_addr()
 
 
 def jump(instr, addr):
     global address, program
     program[address] = instr
-    address += 1
+    inc_addr()
     if isinstance(addr, str):
         program[address] = get_label(addr)
     else:
         program[address] = addr
-    address += 1
+    inc_addr()
 
 
 def save_bin(filename):
@@ -333,9 +338,9 @@ def lda(reg):
 
 
 def end(filename):
-    global program, start, address
+    global program, start, last
     skip = True
-    for i in range(start, address):
+    for i in range(start, last):
         line = program[i]
         if line is not None:
             print("{:02X} {:02X}".format(i, line))
