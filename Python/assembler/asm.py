@@ -67,7 +67,7 @@ D = '_D_'
 
 regs = [A, B, C, D]
 
-program = [None for x in range(256)]
+program = [None for _ in range(256)]
 
 
 def rr(reg):
