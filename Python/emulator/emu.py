@@ -175,7 +175,7 @@ class Emulator(object):
             self.other(op)
 
     def ddss(self, op):
-        return op & 0x03, op & 0x0C >> 2
+        return op & 0x03, (op & 0x0C) >> 2
 
     def rr(self, op):
         return op & 0x03
@@ -239,7 +239,7 @@ class Emulator(object):
             self.print_op('ADD ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('ADD ', dd, ss)
+            self.print_op('ADD ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) + num, True)
         self._w(dd, res)
         self.inc_pc()
@@ -251,7 +251,7 @@ class Emulator(object):
             self.print_op('ADC ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('ADC ', dd, ss)
+            self.print_op('ADC ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) + num + self.FLAGS[FLAG_CY], True)
         self._w(dd, res)
         self.inc_pc()
@@ -263,7 +263,7 @@ class Emulator(object):
             self.print_op('SUB ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('SUB ', dd, ss)
+            self.print_op('SUB ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) - num, True)
         self._w(dd, res)
         self.inc_pc()
@@ -275,7 +275,7 @@ class Emulator(object):
             self.print_op('SBB ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('SBB ', dd, ss)
+            self.print_op('SBB ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) - num + self.FLAGS[FLAG_CY], True)
         self._w(dd, res)
         self.inc_pc()
@@ -287,7 +287,7 @@ class Emulator(object):
             self.print_op('OR  ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('OR  ', dd, ss)
+            self.print_op('OR  ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) | num, True)
         self._w(dd, res)
         self.inc_pc()
@@ -299,7 +299,7 @@ class Emulator(object):
             self.print_op('XOR ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('XOR ', dd, ss)
+            self.print_op('XOR ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) ^ num, True)
         self._w(dd, res)
         self.inc_pc()
@@ -311,7 +311,7 @@ class Emulator(object):
             self.print_op('AND ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('AND ', dd, ss)
+            self.print_op('AND ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) & num, True)
         self._w(dd, res)
         self.inc_pc()
@@ -323,7 +323,7 @@ class Emulator(object):
             self.print_op('CMP ', self.reg(dd), num)
         else:
             num = self._r(ss)
-            self.print_op('CMP ', dd, ss)
+            self.print_op('CMP ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) - num, True)
         self.inc_pc()
 
