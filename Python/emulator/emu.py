@@ -2,115 +2,14 @@
 # THE EMULATOR #
 ################
 
-
-program = [None for _ in range(256)]
-MEM = [None for _ in range(256)]
 A = 0
-B = 0
-C = 0
-D = 0
-SP = 0
-PC = 0
+B = 1
+C = 2
+D = 3
 FLAG_CY = 0
-FLAG_ZERO = 0
-FLAG_NEG = 0
-FLAG_OVER = 0
-
-
-def load_program(filename):
-    global program
-    rombin = open(filename, "rb")
-    program = rombin.read(256)
-    rombin.close()
-    # for i in range(256):
-    #     print('{:02X}'.format(program[i]))
-
-
-def run(address):
-    global PC
-    PC = address
-    while True:
-        status()
-        opcode(PC)
-        print()
-
-def opcode(address):
-    global program
-    op = program[address]
-    perform(op)
-
-
-def operand():
-    global program, PC
-    inc_pc()
-    oper = program[PC]
-    return oper
-
-
-def inc_pc():
-    global PC
-    PC += 1
-    if PC > 255:
-        PC = 0
-        exit(0)
-
-
-def jmp_pc(pc):
-    global PC
-    PC = pc
-
-
-def result(comp, flags=False):
-    global FLAG_CY, FLAG_NEG, FLAG_OVER, FLAG_ZERO
-    res = comp
-    if flags:
-        FLAG_CY = res > 256 or res < 0
-    if res > 256:
-        res = res - 256
-    if res < 0:
-        res = res + 256
-
-    if flags:
-        FLAG_ZERO = res == 0
-        FLAG_NEG = res >= 128
-
-    return res
-
-def _r(ss):
-    global A,B,C,D
-    if ss == 0:
-        return A
-    if ss == 1:
-        return B
-    if ss == 2:
-        return C
-    if ss == 3:
-        return C
-
-
-def _w(dd, num):
-    global A,B,C,D
-    if dd == 0:
-        A = num
-    elif dd == 1:
-        B = num
-    elif dd == 2:
-        C = num
-    elif dd == 3:
-        D = num
-
-
-def status():
-    global A, B, C, D, SP, PC, FLAG_CY, FLAG_NEG, FLAG_ZERO, FLAG_OVER
-    reg = 'A {:02X} B {:02X} C {:02X} D {:02X} SP {:02X} '.format(A, B, C, D, SP)
-    flag = 'C' if FLAG_CY else 'c'
-    flag = flag + ('Z' if FLAG_ZERO else 'z')
-    flag = flag + ('N' if FLAG_NEG else 'n')
-    flag = flag + ('V' if FLAG_OVER else 'v')
-    pc_flag = 'PC {:02X} {:s}'.format(PC, flag)
-    print(pc_flag)
-    print(reg)
-
+FLAG_ZERO = 1
+FLAG_NEG = 2
+FLAG_OVER = 3
 
 NOP = 0x00
 SP = 0x01
@@ -141,8 +40,8 @@ DEC = 0xCC
 IN = 0xD0
 OUT = 0xD4
 
-XXrr = 0xD8
-YYrr = 0xDC
+LDM = 0xD8
+LDA = 0xDC
 
 LSL = 0xE0
 LSR = 0xE4
@@ -164,138 +63,272 @@ HLT = 0xFB
 JPR = 0xFC
 
 
-def perform(op):
-    mask = op & 0xF0
-    if mask == 0:
-        misc(op)
-    elif mask == MOV:
-        move(op)
-    elif mask == LD:
-        ld(op)
-    elif mask == ST:
-        st(op)
-    elif mask == ADD:
-        add(op)
-    elif mask == ADC:
-        adc(op)
-    elif mask == SUB:
-        sub(op)
-    elif mask == SBB:
-        sbb(op)
-    elif mask == OR:
-        or_(op)
-    elif mask == XOR:
-        xor(op)
-    elif mask == AND:
-        and_(op)
-    elif mask == CMP:
-        cmp(op)
-    else:
-        other(op)
+class Emulator(object):
 
+    SP = 0
+    PC = 0
+    PROG = [None for _ in range(256)]
+    MEM = [None for _ in range(256)]
+    REGS = [0 for _ in range(4)]
+    FLAGS = [0 for _ in range(4)]
 
-def ddss(op):
-    return op & 0x03, op & 0x0C >> 2
+    def load_program(self, filename):
+        rombin = open(filename, "rb")
+        self.PROG = rombin.read(256)
+        rombin.close()
+        # for i in range(256):
+        #     print('{:02X}'.format(program[i]))
 
+    def run(self, address):
+        self.PC = address
+        while True:
+            self.status()
+            self.opcode(self.PC)
+            print()
+            print()
 
-def rr(op):
-    return op & 0x03
+    def opcode(self, address):
+        op = self.PROG[address]
+        self.perform(op)
 
+    def operand(self):
+        self.inc_pc()
+        oper = self.PROG[self.PC]
+        return oper
 
-def reg(rr):
-    return ['A', 'B', 'C', 'D'][rr]
+    def inc_pc(self):
+        self.PC += 1
+        if self.PC > 255:
+            self.PC = 0
+            exit(0)
 
+    def jmp_pc(self, pc):
+        self.PC = pc
 
-def misc(op):
-    if op == NOP:
-        nop(op)
-    else:
-        print('misc {:02X}'.format(op))
-        inc_pc()
+    def result(self, comp, flags=False):
+        res = comp
+        if flags:
+            self.FLAGS[FLAG_CY] = res > 256 or res < 0
+        if res > 256:
+            res = res - 256
+        if res < 0:
+            res = res + 256
 
+        if flags:
+            self.FLAGS[FLAG_ZERO] = res == 0
+            self.FLAGS[FLAG_NEG] = res >= 128
 
-def other(op):
-    print('other {:02X}'.format(op))
-    inc_pc()
+        return res
 
+    def _r(self, ss):
+        return self.REGS[ss]
 
-def nop(op):
-    print('NOP')
-    inc_pc()
+    def _w(self, dd, num):
+        self.REGS[dd] = num
 
+    def status(self):
+        reg = 'A {:02X} B {:02X} C {:02X} D {:02X} SP {:02X} '.format(self.REGS[A], self.REGS[B],
+                                                                      self.REGS[C], self.REGS[D], self.SP)
+        flag = 'C' if self.FLAGS[FLAG_CY] else 'c'
+        flag = flag + ('Z' if self.FLAGS[FLAG_ZERO] else 'z')
+        flag = flag + ('N' if self.FLAGS[FLAG_NEG] else 'n')
+        flag = flag + ('V' if self.FLAGS[FLAG_OVER] else 'v')
+        pc_flag = 'PC {:02X} {:s}'.format(self.PC, flag)
+        print(pc_flag)
+        print(reg)
 
-def move(op):
-    dd, ss = ddss(op)
-    if dd == ss:
-        num = operand()
-        _w(dd, num)
-        print('MOV ', reg(dd), num)
-    else:
-        _w(dd, _r(ss))
-        print('MOV ', dd, ss)
-    inc_pc()
+    def print_op(self, op, *args):
+        print(op, end='')
+        for arg in args:
+            if isinstance(arg, int):
+                print(' {:02X}'.format(arg), end='')
+            else:
+                print(arg, end='')
 
+    def perform(self, op):
+        mask = op & 0xF0
+        if mask == 0:
+            self.misc(op)
+        elif mask == MOV:
+            self.move(op)
+        elif mask == LD:
+            self.ld(op)
+        elif mask == ST:
+            self.st(op)
+        elif mask == ADD:
+            self.add(op)
+        elif mask == ADC:
+            self.adc(op)
+        elif mask == SUB:
+            self.sub(op)
+        elif mask == SBB:
+            self.sbb(op)
+        elif mask == OR:
+            self.or_(op)
+        elif mask == XOR:
+            self.xor(op)
+        elif mask == AND:
+            self.and_(op)
+        elif mask == CMP:
+            self.cmp(op)
+        else:
+            self.other(op)
 
-def ld(op):
-    dd, ss = ddss(op)
-    print('LD ', dd, ss)
-    inc_pc()
+    def ddss(self, op):
+        return op & 0x03, op & 0x0C >> 2
 
+    def rr(self, op):
+        return op & 0x03
 
-def st(op):
-    dd, ss = ddss(op)
-    print('ST  ', dd, ss)
-    inc_pc()
+    def reg(self, rr):
+        return ['A', 'B', 'C', 'D'][rr]
 
+    def misc(self, op):
+        if op == NOP:
+            self.nop(op)
+        else:
+            self.print_op('misc {:02X}'.format(op))
+            self.inc_pc()
 
-def add(op):
-    dd, ss = ddss(op)
-    print('ADD ', dd, ss)
-    inc_pc()
+    def other(self, op):
+        self.print_op('other {:02X}'.format(op))
+        self.inc_pc()
 
+    def nop(self, op):
+        self.print_op('NOP')
+        self.inc_pc()
 
-def adc(op):
-    dd, ss = ddss(op)
-    print('ADC ', dd, ss)
-    inc_pc()
+    def move(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self._w(dd, num)
+            self.print_op('MOV ', self.reg(dd), num)
+        else:
+            self._w(dd, self._r(ss))
+            self.print_op('MOV ', dd, ss)
+        self.inc_pc()
 
+    def ld(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self._w(dd, self.MEM[num])
+            self.print_op('LD ', self.reg(dd), num)
+        else:
+            self._w(dd, self.MEM[self._r(ss)])
+            self.print_op('LD ', dd, ss)
+        self.inc_pc()
 
-def sub(op):
-    dd, ss = ddss(op)
-    print('SUB ', dd, ss)
-    inc_pc()
+    def st(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.MEM[num] = self._r(dd)
+            self.print_op('ST ', self.reg(dd), num)
+        else:
+            address = self._r(dd)
+            self.MEM[address] = self._r(ss)
+            self.print_op('ST ', dd, ss)
+        self.inc_pc()
 
+    def add(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('ADD ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('ADD ', dd, ss)
+        res = self.result(self._r(dd) + num, True)
+        self._w(dd, res)
+        self.inc_pc()
 
-def sbb(op):
-    dd, ss = ddss(op)
-    print('SBB ', dd, ss)
-    inc_pc()
+    def adc(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('ADC ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('ADC ', dd, ss)
+        res = self.result(self._r(dd) + num + self.FLAGS[FLAG_CY], True)
+        self._w(dd, res)
+        self.inc_pc()
 
+    def sub(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('SUB ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('SUB ', dd, ss)
+        res = self.result(self._r(dd) - num, True)
+        self._w(dd, res)
+        self.inc_pc()
 
-def or_(op):
-    dd, ss = ddss(op)
-    print('OR  ', dd, ss)
-    inc_pc()
+    def sbb(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('SBB ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('SBB ', dd, ss)
+        res = self.result(self._r(dd) - num + self.FLAGS[FLAG_CY], True)
+        self._w(dd, res)
+        self.inc_pc()
 
+    def or_(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('OR  ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('OR  ', dd, ss)
+        res = self.result(self._r(dd) | num, True)
+        self._w(dd, res)
+        self.inc_pc()
 
-def xor(op):
-    dd, ss = ddss(op)
-    print('XOR ', dd, ss)
-    inc_pc()
+    def xor(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('XOR ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('XOR ', dd, ss)
+        res = self.result(self._r(dd) ^ num, True)
+        self._w(dd, res)
+        self.inc_pc()
 
+    def and_(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('AND ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('AND ', dd, ss)
+        res = self.result(self._r(dd) & num, True)
+        self._w(dd, res)
+        self.inc_pc()
 
-def and_(op):
-    dd, ss = ddss(op)
-    print('AND ', dd, ss)
-    inc_pc()
-
-
-def cmp(op):
-    dd, ss = ddss(op)
-    print('CMP ', dd, ss)
-    inc_pc()
+    def cmp(self, op):
+        dd, ss = self.ddss(op)
+        if dd == ss:
+            num = self.operand()
+            self.print_op('CMP ', self.reg(dd), num)
+        else:
+            num = self._r(ss)
+            self.print_op('CMP ', dd, ss)
+        res = self.result(self._r(dd) - num, True)
+        self.inc_pc()
 
 
 if __name__ == '__main__':
-    load_program('fibo.bin')
-    run(0)
+    emu = Emulator()
+    emu.load_program('fibo.bin')
+    emu.run(0)
