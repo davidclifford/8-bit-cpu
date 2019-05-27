@@ -5,14 +5,15 @@ if __name__ == '__main__':
 
     nop()
     label('start')
-    mov(A, 0x55)
+    mov(A, 0xFF)
     mov(B, 0x00)
     label('loop')
     inc(B)
+    dec(A)
     out(B)
     st(A, B)
     ld(C, B)
-    cmp(C, A)
+    cmp(A, C)
     jpz('loop')
     hlt()
 
