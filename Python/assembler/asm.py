@@ -43,12 +43,12 @@ ROR = 0xEC
 JMP = 0xF0
 JPZ = 0xF1
 JPN = 0xF2
-# 0xF3
-JPV = 0xF4
-# 0xF5
-# 0xF6
-# 0xF7
-JPC = 0xF8
+JPV = 0xF3
+JPC = 0xF4
+JNZ = 0xF5
+JNN = 0xF6
+JNV = 0xF7
+JNC = 0xF8
 # 0xF9
 # 0xFA
 HLT = 0xFB
@@ -319,6 +319,22 @@ def jpv(addr):
 
 def jpz(addr):
     jump(JPZ, addr)
+
+
+def jnc(addr):
+    jump(JNC, addr)
+
+
+def jnn(addr):
+    jump(JNN, addr)
+
+
+def jnv(addr):
+    jump(JNV, addr)
+
+
+def jnz(addr):
+    jump(JNZ, addr)
 
 
 def jpr(reg):

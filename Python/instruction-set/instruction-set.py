@@ -91,16 +91,16 @@ ROR = 0xEC
 JMP = 0xF0
 JPZ = 0xF1
 JPN = 0xF2
-# 0xF3
-JPV = 0xF4
-# 0xF5
-# 0xF6
-# 0xF7
-JPC = 0xF8
-# 0xF9 JNZ
-# 0xFA JNN
+JPV = 0xF3
+JPC = 0xF4
+JNZ = 0xF5
+JNN = 0xF6
+JNV = 0xF7
+JNC = 0xF8
+# 0xF9
+# 0xFA
 HLT = 0xFB
-JPR = 0xFC  # JNV
+JPR = 0xFC  # - 0xFF
 
 
 # print("{:08X}".format(IL|PO|PC|MI|HL))
@@ -163,7 +163,7 @@ def binary_instructions():
                 instruction(AND | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_AND | EO | _w(dd) | FL)
                 instruction(OR | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_OR | EO | _w(dd) | FL)
                 instruction(XOR | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_XOR | EO | _w(dd) | FL)
-                instruction(CMP | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_SUB | FL)
+                instruction(CMP | dd << 2 | ss, OPERAND, MO | YI, _r(dd) | XI, ALU_SUB | CY | FL)
             else:
                 instruction(MOV | dd << 2 | ss, _r(ss) | _w(dd))
                 instruction(LD | dd << 2 | ss, _r(ss) | MI, RO | _w(dd))
@@ -177,7 +177,7 @@ def binary_instructions():
                 instruction(AND | dd << 2 | ss, _r(ss) | YI, _r(dd) | XI, ALU_AND | EO | _w(dd) | FL)
                 instruction(OR | dd << 2 | ss, _r(ss) | YI, _r(dd) | XI, ALU_OR | EO | _w(dd) | FL)
                 instruction(XOR | dd << 2 | ss, _r(ss) | YI, _r(dd) | XI, ALU_XOR | EO | _w(dd) | FL)
-                instruction(CMP | dd << 2 | ss, _r(ss) | YI, _r(dd) | XI, ALU_SUB | FL)
+                instruction(CMP | dd << 2 | ss, _r(ss) | YI, _r(dd) | XI, ALU_SUB | CY | FL)
 
 
 def unary_instructions():
@@ -226,6 +226,21 @@ def other_instructions():
     instruction_c_f(JPV, False, True, OPERAND, MO | JP)
     instruction_c_f(JPV, True, False, PC)
     instruction_c_f(JPV, False, False, PC)
+
+    instruction_c(JNC, False, OPERAND, MO | JP)
+    instruction_c(JNC, True, PC)
+    instruction_c_f(JNZ, True, False, OPERAND, MO | JP)
+    instruction_c_f(JNZ, False, False, OPERAND, MO | JP)
+    instruction_c_f(JNZ, True, True, PC)
+    instruction_c_f(JNZ, False, True, PC)
+    instruction_c_f(JNN, True, False, OPERAND, MO | JP)
+    instruction_c_f(JNN, False, False, OPERAND, MO | JP)
+    instruction_c_f(JNN, True, True, PC)
+    instruction_c_f(JNN, False, True, PC)
+    instruction_c_f(JNV, True, False, OPERAND, MO | JP)
+    instruction_c_f(JNV, False, False, OPERAND, MO | JP)
+    instruction_c_f(JNV, True, True, PC)
+    instruction_c_f(JNV, False, True, PC)
     # stack based
     instruction(SP, OPERAND, MO | SI)
     instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, OPERAND, MO | JP)
