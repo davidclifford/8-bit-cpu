@@ -127,10 +127,12 @@ def get_label(addr):
     return 0
 
 
-def var(_label):
-    global address
+def var(_label, *vals):
+    global address, program
     label(_label)
-    inc_addr()
+    for val in vals:
+        program[address] = val
+        inc_addr()
 
 
 def equ(_label, num):
