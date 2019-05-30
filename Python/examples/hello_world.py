@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     label('loop1')
 
-    mov(D, 0x10)
+    mov(D, 0x11)
 
     label('loop2')
 
@@ -47,9 +47,9 @@ if __name__ == '__main__':
     ret()
 
     org(0x30)
-    var('string', 0, 0, 0, 8, 5, 12, 12, 15, 0, 10, 15, 19, 8, 0, 0, 0)
+    var('string', 0, 0, 0, 8, 5, 12, 12, 15, 0, 21, 21, 15, 18, 12, 4, 0, 0, 0)
 
-    end(os.path.dirname(__file__)+'/hello_josh')
+    end(os.path.dirname(__file__)+'/hello_world')
 
 # ABCDEFGHIJKLMNOPQRSTUVWXYZ
 #          1111111111222222222233
