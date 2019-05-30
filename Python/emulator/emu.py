@@ -330,5 +330,5 @@ class Emulator(object):
 
 if __name__ == '__main__':
     emu = Emulator()
-    emu.load_program('fibo.bin')
+    emu.load_program('mult.bin')
     emu.run(0)
