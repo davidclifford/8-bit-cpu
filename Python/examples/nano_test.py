@@ -5,15 +5,17 @@ if __name__ == '__main__':
 
     nop()
     label('start')
-    mov(A, 13)
-    out(A)
-    mov(A, 0x20)
+    mov(B, 'name')
     label('loop')
+    lda(B)
+    cmp(A, 0)
+    jpz('start')
     out(A)
-    inc(A)
-    cmp(A, 0x80)
-    jnz('loop')
-    jmp('start')
+    inc(B)
+    jmp('loop')
+
+    org(0x20)
+    var('name', 'Hello, World\r\n')
 
     end(os.path.dirname(__file__)+'/nano_test')
 

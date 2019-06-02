@@ -16,29 +16,34 @@ void setup() {
   for (int i=D0; i<=CLK; i++) {
     pinMode(i, INPUT);
   }
-  Serial.begin(1000000);
+  Serial.begin(115200);
 
 }
 
 int _clk;
 int clk;
-int adr;
-int in;
-int out;
+bool adr;
+bool in;
+bool out;
+bool up_edge;
+bool dn_edge;
 
 void loop() {
   // put your main code here, to run repeatedly:
   _clk = clk;
   clk = digitalRead(CLK);
-  in = digitalRead(IN);
-  out = digitalRead(OUT);
-  adr = digitalRead(ADR);
+  in = (digitalRead(IN)==0);
+  out = (digitalRead(OUT)==0);
+  adr = (digitalRead(ADR)==0);
 
-  if (clk == 0 && _clk == 1 && out==0) {
+  up_edge = (_clk == 0 && clk == 1);
+  dn_edge = (_clk == 1 && clk == 0);
+  if (dn_edge && out) {
     byte data = 0;
     for (int pin = D0; pin <= D7; pin += 1) {
       data = (data << 1) + digitalRead(pin);
     }
+//    Serial.print(data, DEC);
     Serial.print((char)data);
   }
 }

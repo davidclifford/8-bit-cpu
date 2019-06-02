@@ -131,8 +131,15 @@ def var(_label, *vals):
     global address, program
     label(_label)
     for val in vals:
-        program[address] = val
-        inc_addr()
+        if isinstance(val, str):
+            for c in val:
+                program[address] = ord(c)
+                inc_addr()
+            program[address] = 0
+            inc_addr()
+        else:
+            program[address] = val
+            inc_addr()
 
 
 def equ(_label, num):
