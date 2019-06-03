@@ -1,0 +1,67 @@
+from Python.assembler.asm import *
+import os
+if __name__ == '__main__':
+    begin()
+
+    nop()
+    sp(0xFF)
+    mov(D, 0)
+    label('start')
+    call('get_char')
+    out(A)
+    st(D, A)
+    inc(D)
+    cmp(A, 170)
+    jnz('start')
+    st(D, 0)
+    inc(D)
+    st(D, 0)
+    inc(D)
+    st(D, 0)
+    inc(D)
+    st(D, 0)
+
+    label('scroll')
+    mov(C, 0)
+    label('loop1')
+    mov(D, 16)
+    label('loop2')
+    mov(B, C)
+    call('print4')
+    dec(D)
+    jnz('loop2')
+    inc(C)
+    ld(A, C)
+    cmp(A, 0)
+    jnz('loop1')
+    jmp('scroll')
+
+    label('get_char')
+    in_(A)
+    cmp(A, 0)
+    jpz('get_char')
+    sub(A, 96)
+    ret()
+
+    label('print4')
+    ld(A, B)
+    out(A)
+    inc(B)
+    ld(A, B)
+    or_(A, 0x20)
+    out(A)
+    inc(B)
+    ld(A, B)
+    or_(A, 0x40)
+    out(A)
+    inc(B)
+    ld(A, B)
+    or_(A, 0x60)
+    out(A)
+    ret()
+
+    end(os.path.dirname(__file__)+'/scroll_text')
+
+# ABCDEFGHIJKLMNOPQRSTUVWXYZ
+#          1111111111222222222233
+#01234567890123456789012345678901

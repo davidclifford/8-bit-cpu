@@ -17,18 +17,19 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 screen.fill((0, 0, 0))
 
-        # x = random.randint(0, 16*8-1)
-        # y = random.randint(0, 15)
+        # x = random.randint(0, 16*4-1)
+        # y = random.randint(0, 16*2-1)
         for y in range(0, 15):
             for x in range(0, 16*8-1):
-                pygame.draw.line(screen, WHITE, [x, y], [x, y])
+                color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                pygame.draw.line(screen, color, [x, y], [x, y])
+        pygame.display.flip()
+
+        # for y in range(0, 15):
+        #     for x in range(0, 16 * 8 - 1):
+        #         pygame.draw.line(screen, (0,0,0), [x, y], [x, y])
 
         pygame.display.flip()
 
-        for y in range(0, 15):
-            for x in range(0, 16 * 8 - 1):
-                pygame.draw.line(screen, (0,0,0), [x, y], [x, y])
-
-        pygame.display.flip()
-
-main()
+if __name__ == '__main__':
+    main()
