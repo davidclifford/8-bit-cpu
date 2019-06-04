@@ -243,7 +243,7 @@ def other_instructions():
     instruction_c_f(JNV, False, True, PC)
     # stack based
     instruction(SP, OPERAND, MO | SI)
-    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, OPERAND, MO | JP)
+    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | XI, Y0 | ALU_ADD | CY | EO | RI, OPERAND, MO | JP)
     instruction(RET, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | JP)
 
 
