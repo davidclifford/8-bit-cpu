@@ -1,5 +1,4 @@
 from Python.assembler.asm import *
-import os
 if __name__ == '__main__':
     begin()
 
@@ -20,6 +19,6 @@ if __name__ == '__main__':
     # org(0x20)
     # var('name', 'Hello, World\r\n')
 
-    end(os.path.dirname(__file__)+'/nano_test')
+    end(__file__)
 
 

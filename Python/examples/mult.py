@@ -1,5 +1,4 @@
 from Python.assembler.asm import *
-import os
 if __name__ == '__main__':
     begin()
 
@@ -44,7 +43,7 @@ if __name__ == '__main__':
     label('end')
     ret()
 
-    end(os.path.dirname(__file__)+'/mult')
+    end(__file__)
 
 # C_Time_D:
 # ;Outputs:

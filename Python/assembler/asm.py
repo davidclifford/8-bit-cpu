@@ -374,4 +374,7 @@ def end(filename):
             print('**')
             skip = False
 
-    save_bin(filename+'.bin')
+    print(filename)
+    file = os.path.dirname(filename) + '/output/' + os.path.basename(filename)
+    file = os.path.splitext(file)[0]
+    save_bin(file+'.bin')

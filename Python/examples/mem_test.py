@@ -1,5 +1,4 @@
 from Python.assembler.asm import *
-import os
 if __name__ == '__main__':
     begin()
 
@@ -17,6 +16,6 @@ if __name__ == '__main__':
     jpz('loop')
     hlt()
 
-    end(os.path.dirname(__file__)+'/mem_test')
+    end(__file__)
 
 

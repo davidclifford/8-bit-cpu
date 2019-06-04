@@ -1,5 +1,4 @@
 from Python.assembler.asm import *
-import os
 if __name__ == '__main__':
     begin()
 
@@ -49,7 +48,7 @@ if __name__ == '__main__':
     org(0x30)
     var('string', 0, 0, 0, 8, 5, 12, 12, 15, 0, 21, 21, 15, 18, 12, 4, 0, 0, 0)
 
-    end(os.path.dirname(__file__)+'/hello_world')
+    end(__file__)
 
 # ABCDEFGHIJKLMNOPQRSTUVWXYZ
 #          1111111111222222222233

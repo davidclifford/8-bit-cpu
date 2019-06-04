@@ -1,18 +1,13 @@
 from Python.assembler.asm import *
-import os
 if __name__ == '__main__':
     begin()
 
+# init
     nop()
     sp(0xFF)
+
+# Store initial 3 spaces
     mov(D, 0)
-    label('start')
-    call('get_char')
-    out(A)
-    st(A, D)
-    inc(D)
-    cmp(A, 170)
-    jnz('start')
     mov(A, 0)
     st(A, D)
     inc(D)
@@ -20,8 +15,28 @@ if __name__ == '__main__':
     inc(D)
     st(A, D)
     inc(D)
+
+# input from nano until CR
+    label('input')
+    call('get_char')
+    out(A)
+    st(A, D)
+    inc(D)
+    cmp(A, 170)  # CR
+    jnz('input')
+
+# add full stop and 3 spaces
+    mov(A, 27)  # full stop
+    st(A, D)
+    inc(D)
+    mov(A, 0)
+    st(A, D)
+    inc(D)
+    st(A, D)
+    inc(D)
     st(A, D)
 
+# Scroll text (infinite loop)
     label('scroll')
     mov(C, 0)
     label('loop1')
@@ -33,10 +48,11 @@ if __name__ == '__main__':
     jnz('loop2')
     inc(C)
     ld(A, C)
-    cmp(A, 0)
+    cmp(A, 27)
     jnz('loop1')
     jmp('scroll')
 
+# input from nano into A
     label('get_char')
     in_(A)
     cmp(A, 0)
@@ -44,6 +60,7 @@ if __name__ == '__main__':
     sub(A, 96)
     ret()
 
+# print 4 characters from mem address pointed to by B (destroys A)
     label('print4')
     ld(A, B)
     out(A)
@@ -61,8 +78,8 @@ if __name__ == '__main__':
     out(A)
     ret()
 
-    end(os.path.dirname(__file__)+'/scroll_text')
+    end(__file__)
 
-# ABCDEFGHIJKLMNOPQRSTUVWXYZ
+# ABCDEFGHIJKLMNOPQRSTUVWXYZ.!?_-
 #          1111111111222222222233
 #01234567890123456789012345678901

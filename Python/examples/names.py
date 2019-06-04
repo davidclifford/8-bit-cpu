@@ -1,5 +1,4 @@
 from Python.assembler.asm import *
-import os
 if __name__ == '__main__':
     begin()
 
@@ -29,6 +28,6 @@ if __name__ == '__main__':
     org(0x20)
     var('name', 20, 15, 14, 25)
 
-    end(os.path.dirname(__file__)+'/tony')
+    end(__file__)
 
 
