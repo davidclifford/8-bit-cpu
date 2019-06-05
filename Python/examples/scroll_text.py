@@ -14,14 +14,13 @@ if __name__ == '__main__':
     st(A, D)
     inc(D)
     st(A, D)
-    inc(D)
 
 # input from nano until CR
     label('input')
+    inc(D)
     call('get_char')
     out(A)
     st(A, D)
-    inc(D)
     cmp(A, 170)  # CR
     jnz('input')
 
@@ -34,7 +33,6 @@ if __name__ == '__main__':
     inc(D)
     st(A, D)
     inc(D)
-    mov(A, 0xFF)
     st(A, D)
 
 # Scroll text (infinite loop)
