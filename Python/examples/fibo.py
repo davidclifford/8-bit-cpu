@@ -19,4 +19,4 @@ if __name__ == '__main__':
     org(0x10)
     var('temp')
 
-    end('fibo')
+    end(__file__)
