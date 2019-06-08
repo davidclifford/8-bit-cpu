@@ -41,8 +41,11 @@ void loop() {
   }
   if (dn_edge && in) {
     byte data = 0;
-    if (Serial.available() > 0)
+    if (Serial.available() > 0) {
       data = (byte)Serial.read();
+//      Serial.print(data, HEX);
+//      Serial.print(" ");
+    }
     set_data(data);    
   }
   if (dn_edge && adr) {

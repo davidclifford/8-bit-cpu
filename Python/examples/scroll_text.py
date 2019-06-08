@@ -19,9 +19,11 @@ if __name__ == '__main__':
     label('input')
     inc(D)
     call('get_char')
+    mov(B, A)
+    and_(B, 31)
     out(A)
-    st(A, D)
-    cmp(A, 170)  # CR
+    st(B, D)
+    cmp(A, 173)  # CR
     jnz('input')
 
 # add full stop and 3 spaces

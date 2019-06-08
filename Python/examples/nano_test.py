@@ -3,22 +3,12 @@ if __name__ == '__main__':
     begin()
 
     nop()
+    mov(A, 0)
+    mov(B, 0xFF)
     label('start')
     in_(A)
-    out(A)
+    # xor(A, B)
     jmp('start')
-    # mov(B, 'name')
-    # label('loop')
-    # lda(B)
-    # cmp(A, 0)
-    # jpz('start')
-    # out(A)
-    # inc(B)
-    # jmp('loop')
-    #
-    # org(0x20)
-    # var('name', 'Hello, World\r\n')
-
     end(__file__)
 
 
