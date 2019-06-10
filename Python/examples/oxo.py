@@ -74,7 +74,7 @@ if __name__ == '__main__':
     cmp(C, 0)
     jnz('cg_loop')
     label('cg_found')
-    mov(A, 2)
+    mov(A, 1)
     st(A, B)
     ret()
 
