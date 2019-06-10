@@ -5,14 +5,15 @@ if __name__ == '__main__':
     sp(0)
 
     call('init_board')
-    label('next_go')
-
     call('print_board')
+
+    label('next_go')
     call('get_input')
+    call('print_board')
     call('win?')
     jnz('game_won')
-    call('print_board')
     call('comp_go')
+    call('print_board')
     call('win?')
     jpz('next_go')
 
@@ -29,14 +30,8 @@ if __name__ == '__main__':
     label('print_won')
     mov(B, 'win')
     call('print_line')
-    call('print_board')
     label('stop')
     jmp('stop')
-
-    # shows players pieces
-    label('show_game')
-    mov(B, 'home')
-    ret()
 
     # gets next move
     label('get_input')
@@ -46,7 +41,6 @@ if __name__ == '__main__':
     in_(A)
     cmp(A, 0)
     jpz('gi_loop')
-    # out(A)
     sub(A, 49)
     mov(B, 'board')
     add(B, A)
@@ -55,10 +49,6 @@ if __name__ == '__main__':
     jnz('gi_loop')
     mov(A, 1)
     st(A, B)
-    label('gnm_loop')
-    in_(A)
-    cmp(A, 0)
-    jnz('gnm_loop')
     ret()
 
     # computers move
@@ -78,12 +68,9 @@ if __name__ == '__main__':
     st(A, B)
     ret()
 
-    # has someone won?
+    # has someone won? TODO
     label('win?')
-    mov(B, 'board')
-    add(B, 4)
-    ld(A, B)
-    cmp(A, 0)
+    mov(A, 0)
     ret()
 
     # prints out board. Destroys a,b
@@ -158,11 +145,9 @@ if __name__ == '__main__':
     label('init_board')
     mov(A, 0)
     mov(B, 9)
-    mov(C, 'board')
     label('ib_loop')
-    st(A, C)
-    inc(C)
     dec(B)
+    st(A, B)
     jnz('ib_loop')
     ret()
 
