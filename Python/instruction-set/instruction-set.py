@@ -97,7 +97,7 @@ JNZ = 0xF5
 JNN = 0xF6
 JNV = 0xF7
 JNC = 0xF8
-# 0xF9
+OUTI = 0xF9
 # 0xFA
 HLT = 0xFB
 JPR = 0xFC  # - 0xFF
@@ -148,6 +148,7 @@ def instruction(address, *micro):
 
 
 def binary_instructions():
+    print('Creating binary instructions')
     for dd in range(4):
         for ss in range(4):
             if dd == ss:
@@ -181,6 +182,7 @@ def binary_instructions():
 
 
 def unary_instructions():
+    print('Creating unary instructions')
     for rr in range(4):
         instruction(NOT | rr, _r(rr) | XI, ALU_SET | EO | YI, ALU_XOR | EO | _w(rr) | FL)
         instruction(NEG | rr, _r(rr) | XI, Y0 | CY | ALU_BSUB | EO | _w(rr) | FL)
@@ -188,6 +190,7 @@ def unary_instructions():
         instruction(DEC | rr, _r(rr) | XI, Y0 | ALU_SUB | EO | _w(rr) | FL)
         instruction(IN | rr, IO | _w(rr))
         instruction(OUT | rr, _r(rr) | OI)
+        instruction(OUTI | rr, OPERAND, MO | OI)
         instruction(LSL | rr, _r(rr) | XI | YI, ALU_ADD | EO | _w(rr) | FL)
         instruction(LSR | rr, _r(rr) | RV | XI | YI, ALU_ADD | EO | _w(rr) | FL,
                     _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
@@ -207,9 +210,10 @@ def unary_instructions():
 
 
 def other_instructions():
+    print('Creating all other instructions')
     # nop hlt
     instruction(NOP, TR)
-    instruction(HLT, HL)
+    instruction(HLT, PO | XI, Y0 | ALU_SUB | EO | JP)  # jump back to same address!
     # jump
     instruction(JMP, OPERAND, MO | JP)
     instruction_c(JPC, True, OPERAND, MO | JP)
@@ -351,6 +355,7 @@ def get_control(part: uint32):
 
 
 def init_all_nop():
+    print('Intitialise all instructions to NOPs')
     for i in range(256):
         for f in range(4):
             instr[i][0][f] = FETCH
@@ -420,7 +425,7 @@ def main():
 
     # print_all()
     # dump_all()
-    print_control_all()
+    # print_control_all()
     save_all_4_bin()
 
 

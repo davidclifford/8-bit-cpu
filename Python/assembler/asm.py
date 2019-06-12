@@ -49,7 +49,7 @@ JNZ = 0xF5
 JNN = 0xF6
 JNV = 0xF7
 JNC = 0xF8
-# 0xF9
+OUTI = 0xF9
 # 0xFA
 HLT = 0xFB
 JPR = 0xFC
@@ -278,8 +278,14 @@ def in_(reg):
     unary(IN, reg)
 
 
-def out(reg):
-    unary(OUT, reg)
+def out(op):
+    if isinstance(op, str) and op in regs:
+        unary(OUT, op)  # e.g. out(A)
+    else:
+        if isinstance(op, str) and op:
+            jump(OUTI, ord(op[0]))  # e.g. out('A')
+        else:
+            jump(OUTI, op)  # e.g. out(13)
 
 
 def not_(reg):
