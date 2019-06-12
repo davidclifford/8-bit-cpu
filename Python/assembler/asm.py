@@ -67,7 +67,8 @@ D = '_D_'
 
 regs = [A, B, C, D]
 
-program = [None for _ in range(256)]
+PROGRAM_SPACE = 256
+program = [None for _ in range(512)]
 
 
 def rr(reg):
@@ -133,13 +134,10 @@ def var(_label, *vals):
     for val in vals:
         if isinstance(val, str):
             for c in val:
-                program[address] = ord(c)
-                inc_addr()
-            program[address] = 0
-            inc_addr()
+                operand(ord(c))
+            operand(0)
         else:
-            program[address] = val
-            inc_addr()
+            operand(val)
 
 
 def equ(_label, num):
@@ -147,51 +145,55 @@ def equ(_label, num):
     labels[_label] = num
 
 
+def prog(instruct):
+    global address, program
+    program[address + PROGRAM_SPACE] = instruct
+    inc_addr()
+
+
+def operand(instruct):
+    global address, program
+    program[address % 256] = instruct
+
+
 def binary(instr, reg, op):
     global address, program
     num = op
     if isinstance(op, str) and op in regs:
-        program[address] = instr + ddss(reg, op)
-        inc_addr()
+        prog(instr + ddss(reg, op))
         return
-    program[address] = instr + ddss(reg, reg)
-    inc_addr()
+    prog(instr + ddss(reg, reg))
     if isinstance(op, str):
         num = get_label(op)
-    program[address] = num
-    inc_addr()
+    operand(num)
 
 
 def unary(instr, reg):
     global address, program
     if isinstance(reg, str):
-        program[address] = instr + rr(reg)
+        prog(instr + rr(reg))
     else:
-        program[address] = instr + reg
-    inc_addr()
+        prog(instr + reg)
 
 
 def single(instr):
     global address, program
-    program[address] = instr
-    inc_addr()
+    prog(instr)
 
 
 def jump(instr, addr):
     global address, program
-    program[address] = instr
-    inc_addr()
+    prog(instr)
     if isinstance(addr, str):
-        program[address] = get_label(addr)
+        operand(get_label(addr))
     else:
-        program[address] = addr
-    inc_addr()
+        operand(addr)
 
 
 def save_bin(filename):
     print("\nSaving {:s} as binary file".format(filename))
     rom0 = bytearray()
-    for i in range(256):
+    for i in range(512):
         rom0.append(program[i] or 0)
     rombin = open(filename, "wb")
     rombin.write(rom0)
@@ -372,9 +374,13 @@ def end(filename):
     global program, start, last
     skip = True
     for i in range(start, last):
-        line = program[i]
-        if line is not None:
-            print("{:02X} {:02X}".format(i, line))
+        instr = program[i+PROGRAM_SPACE]
+        oper = program[(i+1) % 256]
+        if instr is not None:
+            if oper is not None:
+                print("{:02X} {:02X} {:02X}".format(i, instr, oper))
+            else:
+                print("{:02X} {:02X}".format(i, instr))
             skip = True
         elif skip:
             print('**')

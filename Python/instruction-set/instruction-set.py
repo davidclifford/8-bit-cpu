@@ -39,8 +39,8 @@ SO = uint32(1) << 29  # Stack Pointer out
 IO = uint32(1) << 30  # Input reg out
 MO = uint32(1) << 31  # ROM out
 
-OPERAND = PO | MI | PC
-FETCH = OPERAND | IL
+OPERAND = PO | MI
+FETCH = PO | MI | IL | PC
 
 ALU_CLR = 0
 ALU_BSUB = S0
@@ -217,38 +217,37 @@ def other_instructions():
     # jump
     instruction(JMP, OPERAND, MO | JP)
     instruction_c(JPC, True, OPERAND, MO | JP)
-    instruction_c(JPC, False, PC)
+    # instruction_c(JPC, False, PC)
     instruction_c_f(JPZ, True, True, OPERAND, MO | JP)
     instruction_c_f(JPZ, False, True, OPERAND, MO | JP)
-    instruction_c_f(JPZ, True, False, PC)
-    instruction_c_f(JPZ, False, False, PC)
+    # instruction_c_f(JPZ, True, False, PC)
+    # instruction_c_f(JPZ, False, False, PC)
     instruction_c_f(JPN, True, True, OPERAND, MO | JP)
     instruction_c_f(JPN, False, True, OPERAND, MO | JP)
-    instruction_c_f(JPN, True, False, PC)
-    instruction_c_f(JPN, False, False, PC)
+    # instruction_c_f(JPN, True, False, PC)
+    # instruction_c_f(JPN, False, False, PC)
     instruction_c_f(JPV, True, True, OPERAND, MO | JP)
     instruction_c_f(JPV, False, True, OPERAND, MO | JP)
-    instruction_c_f(JPV, True, False, PC)
-    instruction_c_f(JPV, False, False, PC)
+    # instruction_c_f(JPV, True, False, PC)
+    # instruction_c_f(JPV, False, False, PC)
 
     instruction_c(JNC, False, OPERAND, MO | JP)
-    instruction_c(JNC, True, PC)
+    # instruction_c(JNC, True, PC)
     instruction_c_f(JNZ, True, False, OPERAND, MO | JP)
     instruction_c_f(JNZ, False, False, OPERAND, MO | JP)
-    instruction_c_f(JNZ, True, True, PC)
-    instruction_c_f(JNZ, False, True, PC)
+    # instruction_c_f(JNZ, True, True, PC)
+    # instruction_c_f(JNZ, False, True, PC)
     instruction_c_f(JNN, True, False, OPERAND, MO | JP)
     instruction_c_f(JNN, False, False, OPERAND, MO | JP)
-    instruction_c_f(JNN, True, True, PC)
-    instruction_c_f(JNN, False, True, PC)
+    # instruction_c_f(JNN, True, True, PC)
+    # instruction_c_f(JNN, False, True, PC)
     instruction_c_f(JNV, True, False, OPERAND, MO | JP)
     instruction_c_f(JNV, False, False, OPERAND, MO | JP)
-    instruction_c_f(JNV, True, True, PC)
-    instruction_c_f(JNV, False, True, PC)
+    # instruction_c_f(JNV, True, True, PC)
+    # instruction_c_f(JNV, False, True, PC)
     # stack based
     instruction(SP, OPERAND, MO | SI)
-    # instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | XI, Y0 | ALU_ADD | CY | EO | RI, OPERAND, MO | JP)
-    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI | PC, PO | RI | XI, Y0 | ALU_SUB | MI, MO | JP)
+    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI | MI, MO | JP)
     instruction(RET, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | JP)
 
 
@@ -425,8 +424,9 @@ def main():
 
     # print_all()
     # dump_all()
-    # print_control_all()
+    print_control_all()
     save_all_4_bin()
 
 
-main()
+if __name__ == '__main__':
+    main()
