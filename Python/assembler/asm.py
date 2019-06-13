@@ -134,10 +134,10 @@ def var(_label, *vals):
     for val in vals:
         if isinstance(val, str):
             for c in val:
-                operand(ord(c))
-            operand(0)
+                data(ord(c))
+            data(0)
         else:
-            operand(val)
+            data(val)
 
 
 def equ(_label, num):
@@ -154,6 +154,12 @@ def prog(instruct):
 def operand(instruct):
     global address, program
     program[address % 256] = instruct
+
+
+def data(instruct):
+    global address, program
+    program[address % 256] = instruct
+    inc_addr()
 
 
 def binary(instr, reg, op):
