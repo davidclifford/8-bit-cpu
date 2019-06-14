@@ -379,7 +379,7 @@ def lda(reg):
 def end(filename):
     global program, start, last
     skip = True
-    for i in range(start, last):
+    for i in range(0, 256):
         instr = program[i+PROGRAM_SPACE]
         oper = program[(i+1) % 256]
         if instr is not None:
@@ -388,9 +388,13 @@ def end(filename):
             else:
                 print("{:02X} {:02X}".format(i, instr))
             skip = True
+        elif oper is not None:
+            print("{:02X} ** {:02X}".format(i+1, oper))
+            skip = True
         elif skip:
             print('**')
             skip = False
+
 
     print(filename)
     file = os.path.dirname(filename) + '/output/' + os.path.basename(filename)
