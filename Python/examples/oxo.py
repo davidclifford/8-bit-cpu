@@ -63,13 +63,14 @@ if __name__ == '__main__':
     cmp(C, 0)
     jnz('cg_loop')
     label('cg_found')
-    mov(A, 1)
+    mov(A, 4)
     st(A, B)
     ret()
 
-    # has someone won? TODO
+    # has someone won?
     label('win?')
     mov(A, 0)
+    cmp(A, 0)
     ret()
 
     # prints out board. Destroys a,b
