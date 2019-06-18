@@ -70,6 +70,49 @@ if __name__ == '__main__':
     # has someone won?
     label('win?')
     mov(A, 0)
+    mov(D, 'score')
+    mov(B, 'board')
+
+    call('row3')
+    call('row3')
+    call('row3')
+
+    label('row3')
+    call('row')
+    st(A, D)
+    inc(D)
+    call('row')
+    st(A, D)
+    inc(D)
+    call('row')
+    st(A, D)
+    inc(D)
+
+
+    label('row')
+    ld(C, B)
+    add(A, C)
+    inc(B)
+    ret()
+
+    label('column')
+    ld(C, B)
+    add(A, C)
+    add(B, 3)
+    ret()
+
+    label('diag1')
+    ld(C, B)
+    add(A, C)
+    add(B, 4)
+    ret()
+
+    label('diag2')
+    ld(C, B)
+    add(A, C)
+    add(B, 2)
+    ret()
+
     cmp(A, 0)
     ret()
 
@@ -147,6 +190,7 @@ if __name__ == '__main__':
     equ('top', 0)
     equ('mid', 3)
     equ('bot', 6)
+    equ('score', 0x10)
 
     org(0xDB)
     var('lin', '-+-+-')
