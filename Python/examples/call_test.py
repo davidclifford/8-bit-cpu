@@ -4,13 +4,12 @@ if __name__ == '__main__':
     begin()
 
     nop()
-    sp(0xFF)
+    sp(0)
     mov(A, 1)
     label('loop')
     call('out_a')
     jmp('loop')
-    mov(A, 2)
-    out(A)
+    out(2)
     hlt()
 
     label('out_a')

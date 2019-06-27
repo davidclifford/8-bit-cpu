@@ -17,6 +17,6 @@ if __name__ == '__main__':
     hlt()
 
     org(0x10)
-    var('temp')
+    var('temp', 0xFF)
 
     end(__file__)

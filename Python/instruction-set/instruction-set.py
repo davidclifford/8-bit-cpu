@@ -39,8 +39,8 @@ SO = uint32(1) << 29  # Stack Pointer out
 IO = uint32(1) << 30  # Input reg out
 MO = uint32(1) << 31  # ROM out
 
-OPERAND = PO | MI | PC
-FETCH = OPERAND | IL
+OPERAND = PO | MI
+FETCH = PO | MI | IL | PC
 
 ALU_CLR = 0
 ALU_BSUB = S0
@@ -56,7 +56,7 @@ SP = 0x01
 CALL = 0x02
 RET = 0x03
 
-CALR = 0x4
+CALR = 0x4  # to be replaced?
 PUSH = 0x8
 POP = 0xC
 
@@ -72,10 +72,10 @@ XOR = 0x90
 AND = 0xA0
 CMP = 0xB0
 
-NOT = 0xC0
-NEG = 0xC4
-INC = 0xC8
-DEC = 0xCC
+NOT = 0xC0  # to be replaced?
+NEG = 0xC4  # to be replaced?
+INC = 0xC8  # to be replaced?
+DEC = 0xCC  # to be replaced?
 
 IN = 0xD0
 OUT = 0xD4
@@ -85,9 +85,10 @@ LDA = 0xDC  # Load A reg from ROM memory addressed by a register e.g. LDA (rr)
 
 LSL = 0xE0
 LSR = 0xE4
-ROL = 0xE8
-ROR = 0xEC
+ROL = 0xE8  # to be replaced?
+ROR = 0xEC  # to be replaced?
 
+# 2 bits for selecting C,Z,N,V
 JMP = 0xF0
 JPZ = 0xF1
 JPN = 0xF2
@@ -100,7 +101,30 @@ JNC = 0xF8
 OUTI = 0xF9
 # 0xFA
 HLT = 0xFB
-JPR = 0xFC  # - 0xFF
+JPR = 0xFC  # - 0xFF - to be replaced?
+
+# 3 bits for selecting C,Z,N,V,I,O
+# JPC = 0xF0
+# JPZ = 0xF1
+# JPN = 0xF2
+# JPV = 0xF3
+# JPI = 0xF4
+# JPO = 0xF5
+#
+# ??? = 0xF6
+# ??? = 0xF7
+#
+# JNC = 0xF8
+# JNZ = 0xF9
+# JNN = 0xFA
+# JNV = 0xFB
+# JNI = 0xFC
+# JNO = 0xFD
+#
+# ??? = 0xFE
+#
+# JMP = 0xFF
+
 
 
 # print("{:08X}".format(IL|PO|PC|MI|HL))
@@ -216,40 +240,27 @@ def other_instructions():
     instruction(HLT, PO | XI, Y0 | ALU_SUB | EO | JP)  # jump back to same address!
     # jump
     instruction(JMP, OPERAND, MO | JP)
+    # jump if
     instruction_c(JPC, True, OPERAND, MO | JP)
-    instruction_c(JPC, False, PC)
     instruction_c_f(JPZ, True, True, OPERAND, MO | JP)
     instruction_c_f(JPZ, False, True, OPERAND, MO | JP)
-    instruction_c_f(JPZ, True, False, PC)
-    instruction_c_f(JPZ, False, False, PC)
     instruction_c_f(JPN, True, True, OPERAND, MO | JP)
     instruction_c_f(JPN, False, True, OPERAND, MO | JP)
-    instruction_c_f(JPN, True, False, PC)
-    instruction_c_f(JPN, False, False, PC)
     instruction_c_f(JPV, True, True, OPERAND, MO | JP)
     instruction_c_f(JPV, False, True, OPERAND, MO | JP)
-    instruction_c_f(JPV, True, False, PC)
-    instruction_c_f(JPV, False, False, PC)
-
+    # jump if not
     instruction_c(JNC, False, OPERAND, MO | JP)
-    instruction_c(JNC, True, PC)
     instruction_c_f(JNZ, True, False, OPERAND, MO | JP)
     instruction_c_f(JNZ, False, False, OPERAND, MO | JP)
-    instruction_c_f(JNZ, True, True, PC)
-    instruction_c_f(JNZ, False, True, PC)
     instruction_c_f(JNN, True, False, OPERAND, MO | JP)
     instruction_c_f(JNN, False, False, OPERAND, MO | JP)
-    instruction_c_f(JNN, True, True, PC)
-    instruction_c_f(JNN, False, True, PC)
     instruction_c_f(JNV, True, False, OPERAND, MO | JP)
     instruction_c_f(JNV, False, False, OPERAND, MO | JP)
-    instruction_c_f(JNV, True, True, PC)
-    instruction_c_f(JNV, False, True, PC)
+
     # stack based
     instruction(SP, OPERAND, MO | SI)
-    # instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | XI, Y0 | ALU_ADD | CY | EO | RI, OPERAND, MO | JP)
-    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI | PC, PO | RI | XI, Y0 | ALU_SUB | MI, MO | JP)
-    instruction(RET, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | JP)
+    instruction(CALL, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, PO | MI, MO | JP)
+    instruction(RET, SO | MI | XI, RO | JP, Y0 | CY | ALU_ADD | EO | SI)
 
 
 def print_all():
@@ -425,8 +436,9 @@ def main():
 
     # print_all()
     # dump_all()
-    # print_control_all()
+    print_control_all()
     save_all_4_bin()
 
 
-main()
+if __name__ == '__main__':
+    main()

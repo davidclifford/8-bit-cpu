@@ -4,7 +4,7 @@ if __name__ == '__main__':
 
 # init
     nop()
-    sp(0xFF)
+    sp(0)
 
 # Store initial 3 spaces
     mov(D, 0)

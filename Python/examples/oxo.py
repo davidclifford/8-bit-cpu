@@ -30,8 +30,7 @@ if __name__ == '__main__':
     label('print_won')
     mov(B, 'win')
     call('print_line')
-    label('stop')
-    jmp('stop')
+    hlt()
 
     # gets next move
     label('get_input')
@@ -64,13 +63,57 @@ if __name__ == '__main__':
     cmp(C, 0)
     jnz('cg_loop')
     label('cg_found')
-    mov(A, 1)
+    mov(A, 4)
     st(A, B)
     ret()
 
-    # has someone won? TODO
+    # has someone won?
     label('win?')
     mov(A, 0)
+    mov(D, 'score')
+    mov(B, 'board')
+
+    call('row3')
+    call('row3')
+    call('row3')
+
+    label('row3')
+    call('row')
+    st(A, D)
+    inc(D)
+    call('row')
+    st(A, D)
+    inc(D)
+    call('row')
+    st(A, D)
+    inc(D)
+
+
+    label('row')
+    ld(C, B)
+    add(A, C)
+    inc(B)
+    ret()
+
+    label('column')
+    ld(C, B)
+    add(A, C)
+    add(B, 3)
+    ret()
+
+    label('diag1')
+    ld(C, B)
+    add(A, C)
+    add(B, 4)
+    ret()
+
+    label('diag2')
+    ld(C, B)
+    add(A, C)
+    add(B, 2)
+    ret()
+
+    cmp(A, 0)
     ret()
 
     # prints out board. Destroys a,b
@@ -92,19 +135,15 @@ if __name__ == '__main__':
     # b =
     label('print_player_line')
     call('print_o_x')
-    mov(A, 124)
-    out(A)
+    out(124)
     inc(B)
     call('print_o_x')
-    mov(A, 124)
-    out(A)
+    out(124)
     inc(B)
     call('print_o_x')
     # print newline
-    mov(A, 10)
-    out(A)
-    mov(A, 13)
-    out(A)
+    out(10)
+    out(13)
     ret()
 
     label('print_o_x')
@@ -118,12 +157,10 @@ if __name__ == '__main__':
     label('ox')
     cmp(A, 1)
     jnz('X')
-    mov(A, 79)
-    out(A)
+    out(79)
     ret()
     label('X')
-    mov(A, 88)
-    out(A)
+    out(88)
     ret()
 
     # print line. b=address. Destroys a,b
@@ -136,10 +173,8 @@ if __name__ == '__main__':
     inc(B)
     jmp('pl_loop')
     label('pl_done')
-    mov(A, 10)
-    out(A)
-    mov(A, 13)
-    out(A)
+    out(10)
+    out(13)
     ret()
 
     label('init_board')
@@ -155,6 +190,7 @@ if __name__ == '__main__':
     equ('top', 0)
     equ('mid', 3)
     equ('bot', 6)
+    equ('score', 0x10)
 
     org(0xDB)
     var('lin', '-+-+-')
