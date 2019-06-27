@@ -11,10 +11,27 @@ Even though Ben Eaters CPU is 8-bit it uses only 4 bits for the address giving i
 The most obvious improvement is to use an 8 bit address giving 256 locations for instructions or data.
 However this also means that programming the CPU with DIP switches can be tedious and error prone.
 This can be overcome by using a ROM to store the program instead.
+
 The control unit was extended by adding two more ROMS to make the CPU more powerful with 32 control lines.
 
+I used 8 bits for the instruction giving a maximum possible 256 instructions, 3 bits for the t-states, giving 8 t-states,
+a t-state reset so that shorter instructions could end early and 2 bits for flags. This gives 8+3+2 = 13 address bits
+needing 8k ROMS for the control lines.
+
+Carry is one flag and the other flags are multiplexed from the last 3 bits of the instruction.
+They are Negative, Zero, Overflow, Input ready and Output ready from the UART.  
+
+With an 8-bit instruction word any operand need would normally be in the next byte in memory but to give me more available
+space I put the instruction in the ROM at address plus 256 byes and the operands in the first 256 bytes.
+
+This uses a simple circuit modification where when the instruction is fetched from the ROM it also sets the 9th bit of the ROM address
+and gets it from there, where as the operands do not set the 9th address line and so are in the first 256 bytes.
+This will almost double the amount of memory I can use for my programs but still keep all the addresses 8 bits long.
+ 
 ## For my CPU I used
 
+- A 32k RAM chip (but only using 256 bytes!)
+- A 8k ROM for instructions/data (but only using ~500 bytes)
 - 4 ROMS for the control signals (28C64) giving 32 control lines
 - 4 general purpose data registers (A,B,C,D)
 - An 8-bit stack pointer (SP)
@@ -24,7 +41,7 @@ The control unit was extended by adding two more ROMS to make the CPU more power
 - A mux from the bus to the X & Y registers that reverse the bits for right shifts
 - A mux as a zero input to the ALU Y input so that the ALU can add 1, 0 or -1 to X depending on the ALU function and carry in
 - Connecting the Instruction Register input straight from the Memory, bypassing the data bus, which makes the fetch cycle only need 1 t-state instead of 2
-- Using a nano as an input/output device
+- Using a um245r UART as an input/output device and 2 extra flags for input ready and output ready.
 - Using a 28C64 ROM for the multiplexed 4 digit display giving signed & unsigned decimal, octal, hex and a simple ascii display 
 
 ## Software & hardware tools
