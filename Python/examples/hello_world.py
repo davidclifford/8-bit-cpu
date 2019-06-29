@@ -20,7 +20,7 @@ if __name__ == '__main__':
     jnz('loop2')
 
     inc(C)
-    cmp(C, 0x40)
+    cmp(C, 0x30)
     jpz('start')
     jmp('loop1')
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     ret()
 
     org(0x20)
-    var('string', 0, 0, 0, 8, 5, 12, 12, 15, 0, 21, 21, 15, 18, 12, 4, 0, 0, 0)
+    var('string', 0, 0, 0, 8, 5, 12, 12, 15, 0, 21, 15, 18, 12, 4, 0, 0, 0)
 
     end(__file__)
 

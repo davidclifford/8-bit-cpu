@@ -6,19 +6,20 @@ Also see James Bates videos https://www.youtube.com/watch?v=gqYFT6iecHw&list=PL_
 
 ## Improvements and thoughts
 
-Even though Ben Eaters CPU is 8-bit it uses only 4 bits for the address giving it only 16 locations for instructions and/or data.
-
+Ben Eaters CPU is 8-bit but it uses only 4 bits for the address giving it only 16 locations for instructions and/or data.
 The most obvious improvement is to use an 8 bit address giving 256 locations for instructions or data.
 However this also means that programming the CPU with DIP switches can be tedious and error prone.
 This can be overcome by using a ROM to store the program instead.
 
-The control unit was extended by adding two more ROMS to make the CPU more powerful with 32 control lines.
+Output to a 4 digit display can be augmented by adding a UART for input and output to a PC using a terminal emulator like PuTTY.
+
+The control unit can be extended by adding two more ROMS to make the CPU more powerful with 32 control lines.
 
 I used 8 bits for the instruction giving a maximum possible 256 instructions, 3 bits for the t-states, giving 8 t-states,
 a t-state reset so that shorter instructions could end early and 2 bits for flags. This gives 8+3+2 = 13 address bits
-needing 8k ROMS for the control lines.
+needing 8k ROMS for the control lines. This is enough for addressing an 8k byte ROM such as the 28C64.
 
-Carry is one flag and the other flags are multiplexed from the last 3 bits of the instruction.
+Carry is one flag and the other flags are multiplexed from the carry register and UART by using the last 3 bits of the instruction.
 They are Negative, Zero, Overflow, Input ready and Output ready from the UART.  
 
 With an 8-bit instruction word any operand need would normally be in the next byte in memory but to give me more available
@@ -35,14 +36,15 @@ This will almost double the amount of memory I can use for my programs but still
 - 4 ROMS for the control signals (28C64) giving 32 control lines
 - 4 general purpose data registers (A,B,C,D)
 - An 8-bit stack pointer (SP)
-- 2 74161 counters for the PC
+- 2 74161 counters for the PC giving 256 byte address space
 - 2 74382 chips for the ALU giving AND, OR and XOR as well as ADD and SUB
-- Having write only registers for the inputs to the ALU (X,Y)
+- Having write-only registers for the inputs to the ALU (X,Y)
 - A mux from the bus to the X & Y registers that reverse the bits for right shifts
 - A mux as a zero input to the ALU Y input so that the ALU can add 1, 0 or -1 to X depending on the ALU function and carry in
 - Connecting the Instruction Register input straight from the Memory, bypassing the data bus, which makes the fetch cycle only need 1 t-state instead of 2
 - Using a um245r UART as an input/output device and 2 extra flags for input ready and output ready.
-- Using a 28C64 ROM for the multiplexed 4 digit display giving signed & unsigned decimal, octal, hex and a simple ascii display 
+- Using a 28C64 ROM for the multiplexed 4 digit display giving signed & unsigned decimal, octal, hex and a simple ascii display
+- 3mm LEDs with built in resistors in red and green, making it easy to fit them to the breadboards. 
 
 ## Software & hardware tools
 
@@ -50,7 +52,7 @@ This will almost double the amount of memory I can use for my programs but still
 - Python to generate the control and digital display ROMS
 - Python assembler and emulator
 
-## Why use X and Y write only registers in the ALU?
+## Why use X and Y write-only registers in the ALU?
 
 I reasoned that if I had 2 dedicated registers for the inputs to the ALU it would leave
 the other registers free to do whatever they needed. It also allowed other registers
@@ -69,11 +71,14 @@ the output. This worked but added a few more chips to the ALU. I've never heard 
 
 - HALT: in Ben Eaters CPU the HALT instruction stopped the clock with a control line but you can remove
 that by getting the HALT instruction to decrement the PC via the ALU, so that it will produce
-an infinite loop in the micro-code
+an infinite loop in the micro-code and free up a control line on the control ROMS.
 
 ## Build Tips
 
 Use the best quality breadboards you can afford. I started with Elegoo breadboards and they were terrible.
 So I ended up buying BPS BB830 breadboards, the ones Ben Eater recommended, and had very little problems from then on.
+I used some of the BB830 power rails down the side of the CPU to distribute power rather than wires from one 
+board to the next. I used the Elegoo power rails for my 8-bit bus as their high(ish) resistance (about 100 ohms)
+were still able to carry TTL signals without too much trouble.
 
-![Test Image 1](3DTest.png)
+![8 bit cpu](8-bit-cpu.jpg)

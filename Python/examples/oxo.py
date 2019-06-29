@@ -77,6 +77,9 @@ if __name__ == '__main__':
     call('row3')
     call('row3')
 
+    ret()
+
+# ROWS
     label('row3')
     call('row')
     st(A, D)
