@@ -135,7 +135,7 @@ def var(_label, *vals):
         if isinstance(val, str):
             for c in val:
                 data(ord(c))
-            data(0)
+            # data(0)
         else:
             data(val)
 
