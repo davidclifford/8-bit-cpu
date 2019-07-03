@@ -1,4 +1,3 @@
-import keyboard
 from Python.assembler.asm import *
 if __name__ == '__main__':
     begin()
@@ -91,7 +90,6 @@ if __name__ == '__main__':
     call('row')
     st(A, D)
     inc(D)
-
 
     label('row')
     ld(C, B)
@@ -204,105 +202,3 @@ if __name__ == '__main__':
     var('you', 10, 13, 'You')
     var('win', 'win!')
     end(__file__)
-
-
-board = [None for _ in range(256)]
-a = 0
-b = 0
-c = 0
-d = 0
-sp = 255
-
-
-def pout(char):
-    print(char, end='')
-
-
-def init_board():
-    global a, b, board
-    a = 0
-    b = 0
-    while b < 9:
-        board[b] = a
-        b = b + 1
-
-
-def print_o_x():
-    global a, b, board
-    a = board[b]
-    b = b + 1
-    if a == 1:
-        pout('O')
-    elif a == 4:
-        pout('X')
-    else:
-        pout(b)
-
-
-def print_play():
-    global a, b, board
-    print_o_x()
-    pout('|')
-    print_o_x()
-    pout('|')
-    print_o_x()
-    pout('\n')
-
-
-def print_board():
-    global a, b, board
-    b = 0
-    pout('\n\n')
-    print_play()
-    pout('-+-+-\n')
-    print_play()
-    pout('-+-+-\n')
-    print_play()
-
-
-def get_input():
-    global a
-    a = get_key()
-
-
-def get_key():
-    while True:
-        if keyboard.is_pressed('1'):
-            return 0
-        if keyboard.is_pressed('2'):
-            return 1
-        if keyboard.is_pressed('3'):
-            return 2
-        if keyboard.is_pressed('4'):
-            return 3
-        if keyboard.is_pressed('5'):
-            return 4
-        if keyboard.is_pressed('6'):
-            return 5
-        if keyboard.is_pressed('7'):
-            return 6
-        if keyboard.is_pressed('8'):
-            return 7
-        if keyboard.is_pressed('9'):
-            return 8
-
-
-def player_turn():
-    global a, board
-    while True:
-        print_board()
-        pout('Your move? ')
-        a = -1
-        while a == -1:
-            get_input()
-            if board[a] != 0:
-                a = -1
-        board[a] = 1
-
-
-init_board()
-while True:
-    print_board()
-    player_turn()
-
-
