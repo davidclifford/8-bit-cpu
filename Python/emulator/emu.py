@@ -16,7 +16,7 @@ SP = 0x01
 CALL = 0x02
 RET = 0x03
 
-CALR = 0x4
+CALR = 0x4  # to be replaced?
 PUSH = 0x8
 POP = 0xC
 
@@ -32,52 +32,75 @@ XOR = 0x90
 AND = 0xA0
 CMP = 0xB0
 
-NOT = 0xC0
-NEG = 0xC4
-INC = 0xC8
-DEC = 0xCC
+NOT = 0xC0  # to be replaced?
+NEG = 0xC4  # to be replaced?
+INC = 0xC8  # to be replaced?
+DEC = 0xCC  # to be replaced?
 
 IN = 0xD0
 OUT = 0xD4
 
-LDM = 0xD8
-LDA = 0xDC
+LDM = 0xD8  # Load from ROM memory into register rr e.g. LDM rr,(#addr)
+LDA = 0xDC  # Load A reg from ROM memory addressed by a register e.g. LDA (rr)
 
 LSL = 0xE0
 LSR = 0xE4
-ROL = 0xE8
-ROR = 0xEC
+ROL = 0xE8  # to be replaced?
+ROR = 0xEC  # to be replaced?
 
+# 2 bits for selecting C,Z,N,V
 JMP = 0xF0
 JPZ = 0xF1
 JPN = 0xF2
-# 0xF3
-JPV = 0xF4
-# 0xF5
-# 0xF6
-# 0xF7
-JPC = 0xF8
-# 0xF9
+JPV = 0xF3
+JPC = 0xF4
+JNZ = 0xF5
+JNN = 0xF6
+JNV = 0xF7
+JNC = 0xF8
+OUTI = 0xF9
 # 0xFA
 HLT = 0xFB
-JPR = 0xFC
+JPR = 0xFC  # - 0xFF - to be replaced?
+
+# 3 bits for selecting C,Z,N,V,I,O
+# JPC = 0xF0
+# JPZ = 0xF1
+# JPN = 0xF2
+# JPV = 0xF3
+# JPI = 0xF4
+# JPO = 0xF5
+#
+# ??? = 0xF6
+# ??? = 0xF7
+#
+# JNC = 0xF8
+# JNZ = 0xF9
+# JNN = 0xFA
+# JNV = 0xFB
+# JNI = 0xFC
+# JNO = 0xFD
+#
+# ??? = 0xFE
+#
+# JMP = 0xFF
 
 
 class Emulator(object):
 
     SP = 0
     PC = 0
-    PROG = [None for _ in range(256)]
-    MEM = [None for _ in range(256)]
+    PROG = [0 for _ in range(512)]
+    MEM = [0 for _ in range(256)]
     REGS = [0 for _ in range(4)]
     FLAGS = [0 for _ in range(4)]
 
     def load_program(self, filename):
         rombin = open(filename, "rb")
-        self.PROG = rombin.read(256)
+        self.PROG = rombin.read(512)
         rombin.close()
         # for i in range(256):
-        #     print('{:02X}'.format(program[i]))
+        #     print('{:02X}: {:02X} {:02X}'.format(i, self.PROG[i+256], self.PROG[i]))
 
     def run(self, address):
         self.PC = address
@@ -88,11 +111,11 @@ class Emulator(object):
             print()
 
     def opcode(self, address):
-        op = self.PROG[address]
+        op = self.PROG[address+256]
+        self.inc_pc()
         self.perform(op)
 
     def operand(self):
-        self.inc_pc()
         oper = self.PROG[self.PC]
         return oper
 
@@ -191,8 +214,13 @@ class Emulator(object):
             self.inc_pc()
 
     def other(self, op):
-        self.print_op('other {:02X}'.format(op))
-        self.inc_pc()
+
+        if op == JMP:
+            self.print_op('JMP', self.operand())
+            self.jmp_pc(self.operand())
+        else:
+            self.print_op('other {:02X}'.format(op))
+            self.inc_pc()
 
     def nop(self, op):
         self.print_op('NOP')
@@ -330,5 +358,5 @@ class Emulator(object):
 
 if __name__ == '__main__':
     emu = Emulator()
-    emu.load_program('mult.bin')
+    emu.load_program('fibo.bin')
     emu.run(0)
