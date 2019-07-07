@@ -56,9 +56,12 @@ SP = 0x01
 CALL = 0x02
 RET = 0x03
 
-CALR = 0x4  # to be replaced?
-PUSH = 0x8
-POP = 0xC
+OUTI = 0x04
+HLT = 0x05
+# 0x06
+# 0x07
+PUSH = 0x08
+POP = 0x0C
 
 MOV = 0x10
 LD = 0x20
@@ -88,46 +91,27 @@ LSR = 0xE4
 ROL = 0xE8  # to be replaced?
 ROR = 0xEC  # to be replaced?
 
-# 2 bits for selecting C,Z,N,V
-JMP = 0xF0
+# 3 bits for selecting C,Z,N,V,I,O
+JPC = 0xF0
 JPZ = 0xF1
 JPN = 0xF2
 JPV = 0xF3
-JPC = 0xF4
-JNZ = 0xF5
-JNN = 0xF6
-JNV = 0xF7
-JNC = 0xF8
-OUTI = 0xF9
-# 0xFA
-HLT = 0xFB
-JPR = 0xFC  # - 0xFF - to be replaced?
+JPI = 0xF4
+JPO = 0xF5
 
-# 3 bits for selecting C,Z,N,V,I,O
-# JPC = 0xF0
-# JPZ = 0xF1
-# JPN = 0xF2
-# JPV = 0xF3
-# JPI = 0xF4
-# JPO = 0xF5
-#
 # ??? = 0xF6
 # ??? = 0xF7
-#
-# JNC = 0xF8
-# JNZ = 0xF9
-# JNN = 0xFA
-# JNV = 0xFB
-# JNI = 0xFC
-# JNO = 0xFD
-#
+
+JNC = 0xF8
+JNZ = 0xF9
+JNN = 0xFA
+JNV = 0xFB
+JNI = 0xFC
+JNO = 0xFD
+
 # ??? = 0xFE
-#
-# JMP = 0xFF
 
-
-
-# print("{:08X}".format(IL|PO|PC|MI|HL))
+JMP = 0xFF
 
 instr: uint32 = [[[0 for i in range(4)] for t in range(8)] for f in range(256)]
 
@@ -225,10 +209,8 @@ def unary_instructions():
         instruction_c(ROR | rr, True, _r(rr) | RV | XI | YI, CY | ALU_ADD | FL,
                       CY | ALU_ADD | EO | _w(rr) | FL, _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
 
-        instruction(CALR | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, PO | RI, _r(rr) | JP)
         instruction(PUSH | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, _r(rr) | RI)
         instruction(POP | rr, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | _w(rr))
-        instruction(JPR | rr, _r(rr) | JP)
         instruction(LDM | rr, OPERAND, MO | MI, MO | _w(rr))
         instruction(LDA | rr, _r(rr) | MI, MO | AI)
 
@@ -237,7 +219,7 @@ def other_instructions():
     print('Creating all other instructions')
     # nop hlt
     instruction(NOP, TR)
-    instruction(HLT, PO | XI, Y0 | ALU_SUB | EO | JP)  # jump back to same address!
+    instruction(HLT, PO | XI, Y0 | ALU_SUB | EO | JP)  # jump back to same address
     # jump
     instruction(JMP, OPERAND, MO | JP)
     # jump if
@@ -248,6 +230,10 @@ def other_instructions():
     instruction_c_f(JPN, False, True, OPERAND, MO | JP)
     instruction_c_f(JPV, True, True, OPERAND, MO | JP)
     instruction_c_f(JPV, False, True, OPERAND, MO | JP)
+    instruction_c_f(JPI, True, True, OPERAND, MO | JP)
+    instruction_c_f(JPI, False, True, OPERAND, MO | JP)
+    instruction_c_f(JPO, True, True, OPERAND, MO | JP)
+    instruction_c_f(JPO, False, True, OPERAND, MO | JP)
     # jump if not
     instruction_c(JNC, False, OPERAND, MO | JP)
     instruction_c_f(JNZ, True, False, OPERAND, MO | JP)
@@ -256,6 +242,10 @@ def other_instructions():
     instruction_c_f(JNN, False, False, OPERAND, MO | JP)
     instruction_c_f(JNV, True, False, OPERAND, MO | JP)
     instruction_c_f(JNV, False, False, OPERAND, MO | JP)
+    instruction_c_f(JNI, True, False, OPERAND, MO | JP)
+    instruction_c_f(JNI, False, False, OPERAND, MO | JP)
+    instruction_c_f(JNO, True, False, OPERAND, MO | JP)
+    instruction_c_f(JNO, False, False, OPERAND, MO | JP)
 
     # stack based
     instruction(SP, OPERAND, MO | SI)
