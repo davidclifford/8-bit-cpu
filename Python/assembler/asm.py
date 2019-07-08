@@ -238,10 +238,6 @@ def ret():
     single(RET)
 
 
-def calr(reg):
-    unary(CALR, reg)
-
-
 def push(reg):
     unary(PUSH, reg)
 
@@ -356,6 +352,14 @@ def jpz(addr):
     jump(JPZ, addr)
 
 
+def jpi(addr):
+    jump(JPI, addr)
+
+
+def jpo(addr):
+    jump(JPO, addr)
+
+
 def jnc(addr):
     jump(JNC, addr)
 
@@ -372,8 +376,12 @@ def jnz(addr):
     jump(JNZ, addr)
 
 
-def jpr(reg):
-    unary(JPR, reg)
+def jni(addr):
+    jump(JNI, addr)
+
+
+def jno(addr):
+    jump(JNO, addr)
 
 
 def nop():
