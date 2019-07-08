@@ -1,3 +1,6 @@
+
+
+
 ################
 # THE EMULATOR #
 ################
@@ -10,6 +13,8 @@ FLAG_CY = 0
 FLAG_ZERO = 1
 FLAG_NEG = 2
 FLAG_OVER = 3
+FLAG_IN = 4
+FLAG_OUT = 5
 
 NOP = 0x00
 SP = 0x01
@@ -81,7 +86,7 @@ class Emulator(object):
     PROG = [0 for _ in range(512)]
     MEM = [0 for _ in range(256)]
     REGS = [0 for _ in range(4)]
-    FLAGS = [0 for _ in range(4)]
+    FLAGS = [0 for _ in range(8)]
 
     def load_program(self, filename):
         rombin = open(filename, "rb")
@@ -119,8 +124,8 @@ class Emulator(object):
     def result(self, comp, flags=False):
         res = comp
         if flags:
-            self.FLAGS[FLAG_CY] = res > 256 or res < 0
-        if res > 256:
+            self.FLAGS[FLAG_CY] = res > 255 or res < 0
+        if res > 255:
             res = res - 256
         if res < 0:
             res = res + 256
@@ -152,7 +157,7 @@ class Emulator(object):
         print(op, end='')
         for arg in args:
             if isinstance(arg, int):
-                print(' {:02X}'.format(arg), end='')
+                print('{:02X}'.format(arg), end='')
             else:
                 print(arg, end='')
 
@@ -192,27 +197,93 @@ class Emulator(object):
         return op & 0x03
 
     def reg(self, rr):
-        return ['A', 'B', 'C', 'D'][rr]
+        return ['A,', 'B,', 'C,', 'D,'][rr]
 
     def misc(self, op):
         if op == NOP:
             self.nop(op)
+        elif op == HLT:
+            self.print_op('HLT')
+            self.PC = 0
+            exit(0)
         else:
             self.print_op('misc {:02X}'.format(op))
-            self.inc_pc()
 
     def other(self, op):
 
-        if op == JMP:
+        rr = self.rr(op)
+        if op >= JPC:
+            self.jump(op)
+        elif op == INC:
+            self.print_op('INC ', self.reg(rr))
+            res = self.result(self._r(rr) + 1, True)
+            self._w(rr, res)
+        elif op == DEC:
+            self.print_op('DEC ', self.reg(rr))
+            res = self.result(self._r(rr) - 1, True)
+            self._w(rr, res)
+        else:
+            self.print_op('other {:02X}'.format(op))
+
+    def jump(self, op):
+        if op == JPC:
+            self.print_op('JPC', self.operand())
+            if self.FLAGS[FLAG_CY] == 1:
+                self.jmp_pc(self.operand())
+        elif op == JPZ:
+            self.print_op('JPC', self.operand())
+            if self.FLAGS[FLAG_ZERO] == 1:
+                self.jmp_pc(self.operand())
+        elif op == JPN:
+            self.print_op('JPN', self.operand())
+            if self.FLAGS[FLAG_NEG] == 1:
+                self.jmp_pc(self.operand())
+        elif op == JPV:
+            self.print_op('JPV', self.operand())
+            if self.FLAGS[FLAG_OVER] == 1:
+                self.jmp_pc(self.operand())
+        elif op == JPI:
+            self.print_op('JPI', self.operand())
+            if self.FLAGS[FLAG_IN] == 1:
+                self.jmp_pc(self.operand())
+        elif op == JPO:
+            self.print_op('JPO', self.operand())
+            if self.FLAGS[FLAG_OUT] == 1:
+                self.jmp_pc(self.operand())
+
+        elif op == JPC:
+            self.print_op('JPC', self.operand())
+            if self.FLAGS[FLAG_CY] == 0:
+                self.jmp_pc(self.operand())
+        elif op == JPZ:
+            self.print_op('JPZ', self.operand())
+            if self.FLAGS[FLAG_ZERO] == 0:
+                self.jmp_pc(self.operand())
+        elif op == JPN:
+            self.print_op('JPN', self.operand())
+            if self.FLAGS[FLAG_NEG] == 0:
+                self.jmp_pc(self.operand())
+        elif op == JPV:
+            self.print_op('JPV', self.operand())
+            if self.FLAGS[FLAG_OVER] == 0:
+                self.jmp_pc(self.operand())
+        elif op == JPI:
+            self.print_op('JPI', self.operand())
+            if self.FLAGS[FLAG_IN] == 0:
+                self.jmp_pc(self.operand())
+        elif op == JPO:
+            self.print_op('JPO', self.operand())
+            if self.FLAGS[FLAG_OUT] == 0:
+                self.jmp_pc(self.operand())
+
+        elif op == JMP:
             self.print_op('JMP', self.operand())
             self.jmp_pc(self.operand())
         else:
-            self.print_op('other {:02X}'.format(op))
-            self.inc_pc()
+            self.print_op('misc {:02X}'.format(op))
 
     def nop(self, op):
         self.print_op('NOP')
-        self.inc_pc()
 
     def move(self, op):
         dd, ss = self.ddss(op)
@@ -222,8 +293,7 @@ class Emulator(object):
             self.print_op('MOV ', self.reg(dd), num)
         else:
             self._w(dd, self._r(ss))
-            self.print_op('MOV ', dd, ss)
-        self.inc_pc()
+            self.print_op('MOV ', self.reg(dd), self.reg(ss))
 
     def ld(self, op):
         dd, ss = self.ddss(op)
@@ -233,8 +303,7 @@ class Emulator(object):
             self.print_op('LD ', self.reg(dd), num)
         else:
             self._w(dd, self.MEM[self._r(ss)])
-            self.print_op('LD ', dd, ss)
-        self.inc_pc()
+            self.print_op('LD ', self.reg(dd), self.reg(ss))
 
     def st(self, op):
         dd, ss = self.ddss(op)
@@ -245,8 +314,7 @@ class Emulator(object):
         else:
             address = self._r(dd)
             self.MEM[address] = self._r(ss)
-            self.print_op('ST ', dd, ss)
-        self.inc_pc()
+            self.print_op('ST ',self.reg(dd), self.reg(ss))
 
     def add(self, op):
         dd, ss = self.ddss(op)
@@ -258,7 +326,6 @@ class Emulator(object):
             self.print_op('ADD ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) + num, True)
         self._w(dd, res)
-        self.inc_pc()
 
     def adc(self, op):
         dd, ss = self.ddss(op)
@@ -270,7 +337,6 @@ class Emulator(object):
             self.print_op('ADC ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) + num + self.FLAGS[FLAG_CY], True)
         self._w(dd, res)
-        self.inc_pc()
 
     def sub(self, op):
         dd, ss = self.ddss(op)
@@ -282,7 +348,6 @@ class Emulator(object):
             self.print_op('SUB ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) - num, True)
         self._w(dd, res)
-        self.inc_pc()
 
     def sbb(self, op):
         dd, ss = self.ddss(op)
@@ -294,7 +359,6 @@ class Emulator(object):
             self.print_op('SBB ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) - num + self.FLAGS[FLAG_CY], True)
         self._w(dd, res)
-        self.inc_pc()
 
     def or_(self, op):
         dd, ss = self.ddss(op)
@@ -306,7 +370,6 @@ class Emulator(object):
             self.print_op('OR  ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) | num, True)
         self._w(dd, res)
-        self.inc_pc()
 
     def xor(self, op):
         dd, ss = self.ddss(op)
@@ -318,7 +381,6 @@ class Emulator(object):
             self.print_op('XOR ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) ^ num, True)
         self._w(dd, res)
-        self.inc_pc()
 
     def and_(self, op):
         dd, ss = self.ddss(op)
@@ -330,7 +392,6 @@ class Emulator(object):
             self.print_op('AND ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) & num, True)
         self._w(dd, res)
-        self.inc_pc()
 
     def cmp(self, op):
         dd, ss = self.ddss(op)
@@ -341,10 +402,9 @@ class Emulator(object):
             num = self._r(ss)
             self.print_op('CMP ', self.reg(dd), self.reg(ss))
         res = self.result(self._r(dd) - num, True)
-        self.inc_pc()
 
 
 if __name__ == '__main__':
     emu = Emulator()
-    emu.load_program('fibo.bin')
+    emu.load_program('emu_test.bin')
     emu.run(0)
