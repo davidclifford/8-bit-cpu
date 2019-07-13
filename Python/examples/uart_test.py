@@ -11,6 +11,8 @@ if __name__ == '__main__':
     # in_(A)
     cmp(A, 0)
     jpz('start')
+    label('out1')
+    jpo('out1')
     out(A)
     inc(B)
     jmp('loop')

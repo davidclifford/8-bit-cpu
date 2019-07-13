@@ -227,52 +227,52 @@ class Emulator(object):
 
     def jump(self, op):
         if op == JPC:
-            self.print_op('JPC', self.operand())
+            self.print_op('JPC ', self.operand())
             if self.FLAGS[FLAG_CY] == 1:
                 self.jmp_pc(self.operand())
         elif op == JPZ:
-            self.print_op('JPC', self.operand())
+            self.print_op('JPZ ', self.operand())
             if self.FLAGS[FLAG_ZERO] == 1:
                 self.jmp_pc(self.operand())
         elif op == JPN:
-            self.print_op('JPN', self.operand())
+            self.print_op('JPN ', self.operand())
             if self.FLAGS[FLAG_NEG] == 1:
                 self.jmp_pc(self.operand())
         elif op == JPV:
-            self.print_op('JPV', self.operand())
+            self.print_op('JPV ', self.operand())
             if self.FLAGS[FLAG_OVER] == 1:
                 self.jmp_pc(self.operand())
         elif op == JPI:
-            self.print_op('JPI', self.operand())
+            self.print_op('JPI ', self.operand())
             if self.FLAGS[FLAG_IN] == 1:
                 self.jmp_pc(self.operand())
         elif op == JPO:
-            self.print_op('JPO', self.operand())
+            self.print_op('JPO ', self.operand())
             if self.FLAGS[FLAG_OUT] == 1:
                 self.jmp_pc(self.operand())
 
         elif op == JPC:
-            self.print_op('JPC', self.operand())
+            self.print_op('JNC ', self.operand())
             if self.FLAGS[FLAG_CY] == 0:
                 self.jmp_pc(self.operand())
         elif op == JPZ:
-            self.print_op('JPZ', self.operand())
+            self.print_op('JNZ ', self.operand())
             if self.FLAGS[FLAG_ZERO] == 0:
                 self.jmp_pc(self.operand())
         elif op == JPN:
-            self.print_op('JPN', self.operand())
+            self.print_op('JNN ', self.operand())
             if self.FLAGS[FLAG_NEG] == 0:
                 self.jmp_pc(self.operand())
         elif op == JPV:
-            self.print_op('JPV', self.operand())
+            self.print_op('JNV ', self.operand())
             if self.FLAGS[FLAG_OVER] == 0:
                 self.jmp_pc(self.operand())
         elif op == JPI:
-            self.print_op('JPI', self.operand())
+            self.print_op('JNI ', self.operand())
             if self.FLAGS[FLAG_IN] == 0:
                 self.jmp_pc(self.operand())
         elif op == JPO:
-            self.print_op('JPO', self.operand())
+            self.print_op('JNO ', self.operand())
             if self.FLAGS[FLAG_OUT] == 0:
                 self.jmp_pc(self.operand())
 
@@ -406,5 +406,5 @@ class Emulator(object):
 
 if __name__ == '__main__':
     emu = Emulator()
-    emu.load_program('emu_test.bin')
+    emu.load_program('fibo.bin')
     emu.run(0)
