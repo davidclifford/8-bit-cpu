@@ -352,12 +352,20 @@ def jpz(addr):
     jump(JPZ, addr)
 
 
-def jpi(addr):
-    jump(JPI, addr)
+def jpi(addr=None):
+    global address
+    if addr is None:
+        jump(JPI, address)
+    else:
+        jump(JPI, addr)
 
 
-def jpo(addr):
-    jump(JPO, addr)
+def jpo(addr=None):
+    global address
+    if addr is None:
+        jump(JPO, address)
+    else:
+        jump(JPO, addr)
 
 
 def jnc(addr):

@@ -1,6 +1,3 @@
-
-
-
 ################
 # THE EMULATOR #
 ################
@@ -191,7 +188,7 @@ class Emulator(object):
             self.other(op)
 
     def ddss(self, op):
-        return op & 0x03, (op & 0x0C) >> 2
+        return (op & 0x0C) >> 2, op & 0x03
 
     def rr(self, op):
         return op & 0x03
@@ -275,9 +272,8 @@ class Emulator(object):
             self.print_op('JNO ', self.operand())
             if self.FLAGS[FLAG_OUT] == 0:
                 self.jmp_pc(self.operand())
-
         elif op == JMP:
-            self.print_op('JMP', self.operand())
+            self.print_op('JMP ', self.operand())
             self.jmp_pc(self.operand())
         else:
             self.print_op('misc {:02X}'.format(op))
@@ -401,7 +397,7 @@ class Emulator(object):
         else:
             num = self._r(ss)
             self.print_op('CMP ', self.reg(dd), self.reg(ss))
-        res = self.result(self._r(dd) - num, True)
+        self.result(self._r(dd) - num, True)
 
 
 if __name__ == '__main__':

@@ -53,8 +53,9 @@ if __name__ == '__main__':
     jnz('loop1')
     jmp('scroll')
 
-# input from nano into A
+# input from uart into A
     label('get_char')
+    jpi()
     in_(A)
     cmp(A, 0)
     jpz('get_char')
