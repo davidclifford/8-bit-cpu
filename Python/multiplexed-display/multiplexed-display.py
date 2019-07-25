@@ -65,7 +65,7 @@ def main():
         set_rom(value | NEGATIVE | D2, digit(value, D2, 100))
         set_rom(value | NEGATIVE | D3, digit(value, D3, 1))
 
-    #  hex[] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x7d, 0x1f, 0x0d, 0x3d, 0x6f, 0x47 } # lowercase
+    # hexa[] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x7d, 0x1f, 0x0d, 0x3d, 0x6f, 0x47 } # lowercase
     hexa = [0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x77, 0x1f, 0x4e, 0x3d, 0x4f, 0x47 ]  # uppercase
     print("Programming hex numbers")
     for value in range(256):
@@ -74,7 +74,7 @@ def main():
         set_rom(value | HEXA | D2, BLANK)
         set_rom(value | HEXA | D3, LTR_H)
 
-    #  byte digits[] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70} # 0-7
+    # digits[] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70} # 0-7
     print("Programming octal numbers")
     for value in range(256):
         set_rom(value | OCTAL | D0, hexa[(value % 8)])
@@ -83,9 +83,9 @@ def main():
         set_rom(value | OCTAL | D3, LTR_O)
 
     letters = [BLANK, 0x7d, 0x1f, 0x0d, 0x3d, 0x6f, 0x47, 0x7b,  # space, a-g
-                        0x17, 0x50, 0x58, 0x37, 0x0e, 0x4f, 0x15, 0x1d,  # h-o
-                        0x67, 0x73, 0x05, 0x5b, 0x0f, 0x1c, 0x0c, 0x79,  # p-w
-                        0xB7, 0x3b, 0x6d, 0x80, 0xb0, 0xe5, 0x08, 0x01]  # x-z, . ! ? _ -
+               0x17, 0x50, 0x58, 0x37, 0x0e, 0x4f, 0x15, 0x1d,  # h-o
+               0x67, 0x73, 0x05, 0x5b, 0x0f, 0x1c, 0x0c, 0x79,  # p-w
+               0xB7, 0x3b, 0x6d, 0x80, 0xb0, 0xe5, 0x08, 0x01]  # x-z, . ! ? _ -
     print("Programming alpha")
     for disp in range(8):
         for value in range(32):
@@ -109,6 +109,7 @@ def main():
     dump()
     save_bin('display.bin')
 
+
 def save_bin(filename):
     print("\nSaving {:s} as binary file".format(filename))
     rom_bin = bytearray()
@@ -120,9 +121,9 @@ def save_bin(filename):
 
 
 def dump():
-  for i in range(0, len(rom), 8):
-      print("{:04X}: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}" \
-            .format(i, rom[i], rom[i+1], rom[i+2], rom[i+3], rom[i+4], rom[i+5], rom[i+6], rom[i+7]))
+    for i in range(0, len(rom), 8):
+        print("{:04X}: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}"
+              .format(i, rom[i], rom[i+1], rom[i+2], rom[i+3], rom[i+4], rom[i+5], rom[i+6], rom[i+7]))
 
 
 if __name__ == '__main__':
