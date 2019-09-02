@@ -199,6 +199,14 @@ class Emulator(object):
     def misc(self, op):
         if op == NOP:
             self.nop(op)
+        elif op == SP:
+            addr = self.operand()
+            self.print_op('SP {:02X}'.format(addr))
+            self.SP = addr
+        elif op == CALL:
+            self.call()
+        elif op == RET:
+            self.ret()
         elif op == HLT:
             self.print_op('HLT')
             self.PC = 0
@@ -280,6 +288,28 @@ class Emulator(object):
 
     def nop(self, op):
         self.print_op('NOP')
+
+    def call(self):
+        addr = self.operand()
+        self.print_op('CALL {:02X}'.format(addr))
+        self.dec_sp()
+        self.MEM[self.SP] = self.PC
+        self.jmp_pc(addr)
+
+    def ret(self):
+        self.print_op('RET')
+        self.PC = self.MEM[self.SP]
+        self.inc_sp()
+
+    def inc_sp(self):
+        self.SP += 1
+        if self.SP > 255:
+            self.SP -= 256
+
+    def dec_sp(self):
+        self.SP -= 1
+        if self.SP < 0:
+            self.SP += 256
 
     def move(self, op):
         dd, ss = self.ddss(op)
@@ -402,5 +432,5 @@ class Emulator(object):
 
 if __name__ == '__main__':
     emu = Emulator()
-    emu.load_program('fibo.bin')
+    emu.load_program('mult.bin')
     emu.run(0)
