@@ -211,6 +211,14 @@ class Emulator(object):
             self.print_op('HLT')
             self.PC = 0
             exit(0)
+        elif op >= PUSH and op < POP:
+            rr = self.rr(op)
+            self.print_op('PUSH ', self.reg(rr))
+            self.push(rr)
+        elif op >= POP:
+            rr = self.rr(op)
+            self.print_op('POP ', self.reg(rr))
+            self.pop(rr)
         else:
             self.print_op('misc {:02X}'.format(op))
 
@@ -299,6 +307,14 @@ class Emulator(object):
     def ret(self):
         self.print_op('RET')
         self.PC = self.MEM[self.SP]
+        self.inc_sp()
+
+    def push(self, rr):
+        self.dec_sp()
+        self.MEM[self.SP] = self._r(rr)
+
+    def pop(self, rr):
+        self._w(rr, self.MEM[self.SP])
         self.inc_sp()
 
     def inc_sp(self):
