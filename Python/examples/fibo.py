@@ -2,8 +2,8 @@ from Python.assembler.asm import *
 if __name__ == '__main__':
     begin()
 
-    label('start')
     nop()
+    label('start')
     mov(A, 0)
     mov(B, 1)
 
