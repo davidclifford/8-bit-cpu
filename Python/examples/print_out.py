@@ -1,39 +1,41 @@
 from Python.assembler.asm import *
 if __name__ == '__main__':
+
+    def nl():
+        jpo()
+        out(0xA)
+        jpo()
+        out(0xD)
+
+    def prnt(char):
+        jpo()
+        out(char)
+
+    num_chars = 32
+
     begin()
 
     nop()
     sp(0)
-    mov(D, 35)
-    label('loop2')
-    mov(C, 8)
-    label('loop1')
-    mov(A, 35)
-    mov(B, 16)
-    label('line')
-    in_(A)
-    cmp(A, 0)
-    jpz('next')
-    mov(D, A)
-    label('next')
-    out(D)
-    dec(B)
-    jnz('line')
-    mov(A, 10)
-    out(A)
-    mov(A, 13)
-    out(A)
-    dec(C)
-    jnz('loop1')
-    mov(A, 27)
-    out(A)
-    mov(A, 91)
-    out(A)
-    mov(A, 72)
-    out(A)
-    # mov(A, 74)
-    # out(A)
-    jmp('loop2')
-    end(__file__)
+    prnt(0xC)
 
+    label('start')
+    # nl()
+    prnt(0xC)
+    mov(A, 32)
+    mov(B, A)
+    sub(B, 31)
+    label('next char')
+    prnt(A)
+    dec(B)
+    jpc('next char')
+    nl()
+    mov(B, A)
+    sub(B, 31)
+    inc(A)
+    cmp(A, 0x5a)
+    jnz('next char')
+    jmp('start')
+
+    end(__file__)
 

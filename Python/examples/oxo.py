@@ -209,5 +209,5 @@ if __name__ == '__main__':
     var('next_move', 'Your move? ')
     var('i', 10, 13, 'I')
     var('you', 10, 13, 'You')
-    var('win', 'win!')
+    var('win', ' win!')
     end(__file__)
