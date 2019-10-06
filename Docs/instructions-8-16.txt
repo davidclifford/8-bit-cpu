@@ -1,0 +1,58 @@
+Instruction set for 8-bit data 16-bit bus CPU
+---------------------------------------------
+
+Registers:
+
+Hidden:
+PC, MAR, SP, TEMP (for ALU)
+
+General purpose
+---------------
+
+A - Accumulator, used for all arithmetic and logic functions (except unary operations)
+B,C,D - GP registers
+
+MOV A,B
+MOV A,C
+MOV A,D
+MOV A,#
+
+MOV B,A
+MOV B,C
+MOV B,D
+MOV B,#
+
+MOV C,A
+MOV C,B
+MOV C,D
+MOV C,#
+
+MOV D,A
+MOV D,B
+MOV D,C
+MOV D,#
+
+ADD B
+ADC B
+SUB B
+SBB B
+CMP B
+AND B
+OR  B
+XOR B
+MLH B
+MLL B
+DIV B
+REM B
+
+INC A
+DEC A
+NOT A
+NEG A
+
+ROR B
+ROL B
+SLL B
+SRL B
+SRA B
+
