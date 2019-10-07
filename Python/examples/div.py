@@ -4,17 +4,26 @@ if __name__ == '__main__':
 
 # C/D = C rem A
     nop()
-    sp(0xFF)
+    mov(C, 44)
+    mov(D, 11)
+
     mov(A, 0)
     mov(B, 8)
-    lsl(C)
+
     label('loop1')
-    rol(A)
+    lsl(C)
+
+    # rol(A)
+    st(C, 0)
+    mov(C, A)
+    adc(A, C)
+    ld(C, 0)
+
     cmp(A, D)
     jnc('loop2')
-    sbb(A, D)
+    inc(C)
+    sub(A, D)
     label('loop2')
-    rol(C)
     dec(B)
     jnz('loop1')
     out(C)
@@ -22,32 +31,21 @@ if __name__ == '__main__':
 
     end(__file__)
 
-# ;
-#    LDA #0
-#    LDX #8
-#    ASL TQ
-# L1 ROL
-#    CMP B
-#    BCC L2
-#    SBC B
-# L2 ROL TQ
-#    DEX
-#    BNE L1
-
-# ; 8bit/8bit division
-# ; by White Flame
-# ;
-# ; Input: num, denom in zeropage
-# ; Output: num = quotient, .A = remainder
+# c/d = c rem a
 #
-#  lda #$00
-#  ldx #$07
-#  clc
-# : rol num
-#   rol
-#   cmp denom
-#   bcc :+
-#    sbc denom
-# : dex
-#  bpl :--
-#  rol num
+# c = 34
+# d = 0
+#
+# a = 0
+# b = 8
+# cy = 0
+# while b > 0:
+#     c, cy = rol(c, cy)
+#     a, cy = rol(a, cy)
+#     if (a - d) >= 0:
+#         c += 1
+#         a = a - d
+#     b = b - 1
+#     print(a, b, c, d, cy)
+#
+# print(c, 'remainder', a, '=', c * d + a)

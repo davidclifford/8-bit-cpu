@@ -3,10 +3,11 @@ if __name__ == '__main__':
     begin()
 
     nop()
+    mov(B, 0)
     label('start')
-    mov(A, 0x01)
-    cmp(A, 0x01)
-    jpz('start')
+    dec(B)
+    out(B)
+    jnz('start')
     hlt()
 
     end(__file__)
