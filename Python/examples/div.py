@@ -4,8 +4,8 @@ if __name__ == '__main__':
 
 # C/D = C rem A
     nop()
-    mov(C, 44)
-    mov(D, 11)
+    mov(C, 16)
+    mov(D, 2)
 
     mov(A, 0)
     mov(B, 8)
@@ -13,11 +13,7 @@ if __name__ == '__main__':
     label('loop1')
     lsl(C)
 
-    # rol(A)
-    st(C, 0)
-    mov(C, A)
-    adc(A, C)
-    ld(C, 0)
+    rol(A)
 
     cmp(A, D)
     jnc('loop2')

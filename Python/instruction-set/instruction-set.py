@@ -202,13 +202,12 @@ def unary_instructions():
         instruction(LSL | rr, _r(rr) | XI | YI, ALU_ADD | EO | _w(rr) | FL)
         instruction(LSR | rr, _r(rr) | RV | XI | YI, ALU_ADD | EO | _w(rr) | FL,
                     _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
-        instruction_c(ROL | rr, False, _r(rr) | XI | YI, ALU_ADD | FL, ALU_ADD | EO | _w(rr) | FL)
-        instruction_c(ROL | rr, True, _r(rr) | XI | YI, ALU_ADD | FL, CY | ALU_ADD | EO | _w(rr) | FL)
-        instruction_c(ROR | rr, False, _r(rr) | RV | XI | YI, ALU_ADD | FL,
-                      ALU_ADD | EO | _w(rr) | FL, _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
-        instruction_c(ROR | rr, True, _r(rr) | RV | XI | YI, CY | ALU_ADD | FL,
-                      CY | ALU_ADD | EO | _w(rr) | FL, _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
-
+        instruction_c(ROL | rr, False, _r(rr) | XI | YI, ALU_ADD | EO | _w(rr) | FL)
+        instruction_c(ROL | rr, True, _r(rr) | XI | YI, CY | ALU_ADD | EO | _w(rr) | FL)
+        instruction_c(ROR | rr, False, _r(rr) | RV | XI | YI, ALU_ADD | EO | _w(rr) | FL,
+                      _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
+        instruction_c(ROR | rr, True, _r(rr) | RV | XI | YI, CY | ALU_ADD | EO | _w(rr) | FL,
+                      _r(rr) | RV | XI, Y0 | ALU_ADD | EO | _w(rr))
         instruction(PUSH | rr, SO | XI, Y0 | ALU_SUB | EO | SI | MI, _r(rr) | RI)
         instruction(POP | rr, SO | MI | XI, Y0 | CY | ALU_ADD | EO | SI, RO | _w(rr))
         instruction(LDM | rr, OPERAND, MO | MI, MO | _w(rr))
